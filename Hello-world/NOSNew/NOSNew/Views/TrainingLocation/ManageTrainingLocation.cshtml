@@ -1,0 +1,240 @@
+﻿@using NOSNewDO
+@{
+    ViewBag.Title = "Manage Training Location";
+    //Layout = null;
+    Layout = "~/Views/Shared/_NosNewLayout.cshtml";
+}
+<link href="~/Content/styles-1.css" rel="stylesheet" media="all" />
+<link href="~/Content/Styles.css" rel="stylesheet" media="all" />
+
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+
+@*<script src="~/Scripts/jquery-1.9.0.min.js"></script>*@
+<script src="~/Scripts/jquery.jqGrid.js"></script>
+<script src="~/Scripts/grid.locale-en.js"></script>
+<link href="~/Content/JQGridReq/jquery-ui-1.9.2.custom.css" rel="stylesheet" type="text/css" />
+<link href="~/Content/JQGridReq/ui.jqgrid.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript">
+    function allow(e, str) {
+
+        var key;
+        var keychar;
+
+        if (window.event) {
+            key = window.event.keyCode;
+        }
+        else if (e) {
+            key = e.which;
+        }
+        else {
+            return true;
+        }
+        keychar = String.fromCharCode(key);
+        if ((key == null) || (key == 0) || (key == 8) || (key == 9) || (key == 13) || (key == 27)) {
+            return true;
+        }
+        else if (str == '') {
+            return true;
+        }
+        else if (((str).indexOf(keychar) > -1)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+
+    $(document).ready(function () {
+
+        $("#btnClear").on("click", function () {
+            window.open("../TraningLoc/SearchTrainingDetails", '_self', false);
+        });
+        var LocationName = "", TrainingLocCode = "", StateId = "", City = "", SSC = "";
+
+        $("#btnSearch").on("click", function () {
+            BindSearchResult();
+        });
+        function BindSearchResult() {
+            debugger;
+            LocationName = document.getElementById("txtLocationName").value;
+            TrainingLocCode = document.getElementById("txtTrainingCode").value;
+            StateId = $("#ddlStateList").val();
+            City = document.getElementById("txtCity").value;
+
+            SearchDetails = [];
+            SearchDetails.push({
+                "LocationName": LocationName,
+                "TrainingLocCode": TrainingLocCode,
+                "StateId": StateId,
+                "City": City
+            });
+            $.ajax({
+                type: "POST",
+                url: "../TraningLoc/GetTrainingDetailsBySearch",
+                data: JSON.stringify({ 'SearchDetails': SearchDetails }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (d) {
+                    debugger;
+                    var result = JSON.stringify(d);
+                    if (result != null) {
+
+                        $("#lblValResult").innerHTML = "";
+                        $('#EmpTable').jqGrid('GridUnload');
+                        jQuery("#EmpTable").jqGrid({
+
+                            datatype: "local",
+                            colNames: ["Location ID", "Location Name", "TrainingLocCode", "Capacity", "Rooms", "Description", "State ID", "City", "Address", "Delete"],
+                            colModel: [
+
+                                { name: "LocationId", index: "LocationId", width: 80, align: "center", },
+                                { name: "LocationName", index: "LocationName", width: 80, align: "center", formatter: addLink },
+                                { name: "TrainingLocCode", index: "TrainingLocCode", width: 80, align: "center", },
+                                { name: "ClsRoomCapacity", index: "ClsRoomCapacity", width: 80, align: "center" },
+                                { name: "NoOfRooms", index: "NoOfRooms", width: 50, align: "center" },
+                                { name: "Description", index: "Description", width: 50, align: "center" },
+                                { name: "StateId", index: "StateId", width: 120, align: "center" },
+                                { name: "City", index: "City", width: 120, align: "center" },
+                                { name: "Address", index: "Address", width: 120, align: "center" },
+                                { name: "Delete", index: "Delete", width: 50, formatter: addImageForDelete }
+
+                            ],
+                            data: JSON.parse(result), //Load Data
+                            loadonce: true,
+                            rowList: [5, 10, 20],
+                            rowNum: 10, //Total records to display by default
+                            pager: '#EmpPager',
+                            viewrecords: true,
+                            sortorder: 'asc',
+                            gridview: true,
+                            sortname: 'FirstName',
+                            height: 'auto',
+                            altRows: true,
+                            hoverrows: true,
+                            caption: "Search Training Details"
+                        });
+                        jQuery("#EmpTable").jqGrid('navGrid', '#EmpPager', { del: false, add: false, edit: false }, {}, {}, {}, { multipleSearch: false });
+                    } else {
+                        $("#lblValResult").innerHTML = "No Data Found.";
+                        $('#EmpTable').jqGrid('GridUnload');
+                    }
+                }
+            });
+        }
+        function addImageForDelete(cellvalue, options, rowObject) {
+            var LocationId = rowObject.LocationId;
+            return "<input type=\"image\" name=\"imgDelete\" id=\"imgDelete_" + LocationId + "\" title=\"Click to delete this record\" src=\"../Content/MovetoBin.GIF\" onclick=\"return ConfirmDelete('TraningLoc');\" style='border-width:0px;'>";
+        }
+    });
+    function addLink(cellvalue, options, rowObject) {
+
+        var LocationId = rowObject.LocationId;
+
+        return "<a href='#' class='SearchTrainingDetails' id='SearchTrainingDetails_" + options.rowId + "_" + LocationId + " ' style='height:25px;width:120px;' type='button' title='Search Training Details' onclick=\"ViewTrainingDetails(" + LocationId + ")\" >" + rowObject.LocationName + "</a>";
+    }
+    function ViewTrainingDetails(LocationId) {
+
+        window.open("/TraningLoc/UpdateTrainingDetails?LocationId=" + LocationId, "_self");
+
+    }
+
+    function ConfirmDelete(msg) {
+        return confirm("Are you sure you want to delete " & msg);
+    }
+
+</script>
+
+<div class="col-lg-12">
+    @{
+        IEnumerable<StateListDO> stateList = ViewData["StateList"] as IEnumerable<StateListDO>;
+
+    }
+    @using (Html.BeginForm("ManageCandidates", "TrainingPartner", FormMethod.Post))
+    {
+        <div class="page-header filled full-block light" style="margin-top:10px;">
+            <div class="row">
+                <h2 style="text-align:center; color:#92298e ; font-family:Calibri; font-size:25px; font-weight:bold; text-transform:uppercase;">Manage Training Location</h2>
+
+                <table width="60%" align="center">
+                    <tr>
+                        <td align="left">
+                            <div>
+                                <label style="font-weight:bold;color:red;font-size:11px;" id="lblValMessage"></label>
+                            </div>
+                        </td>
+                        <td align="right">
+                            <div>
+                                @Html.ActionLink("Create Training Location", "CreateTrainingLocation", "TrainingLocation")
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+                <table width="60%" align="center">
+                    <tr>
+                        <td class="pplBG">
+                            <span>&nbsp;Search Training Location</span>
+                        </td>
+                        <td align="right"></td>
+                    </tr>
+                </table><br/>
+                <table width="60%" align="center" class="tablesideborders">
+                    <tr>
+                        <td width="12%" class="shaalatxtright" style="height:26px;">
+                            Location Name
+                        </td>
+                        <td width="22%">
+                            @Html.TextBox("txtLocationName", null, new { @class = "usertextbox", id = "txtLocationName", maxlength = "50", onkeypress = "return allow(event, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789');" })
+                        </td>
+                        <td width="12%" class="shaalatxtright"> Location Code</td>
+                        <td width="22%">
+                            @Html.TextBox("txtTrainingCode", null, new { @class = "usertextbox", id = "txtTrainingCode", maxlength = "50", onkeypress = "return allow(event, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789');" })
+                        </td>
+                    </tr>
+                 
+                    <tr>
+                        
+                        <td width="12%" class="shaalatxtright"> State </td>
+                        <td width="22%">
+                            @Html.DropDownList("ddlStateList", new SelectList(stateList, "StateId", "StateName"), "-----Select-----", new { @class = "blueDropdown" })
+                        </td>
+                        <td width="12%" class="shaalatxtright"> City </td>
+                        <td width="22%">
+                            @Html.TextBox("txtCity", null, new { @class = "usertextbox", id = "txtCity", maxlength = "50", onkeypress = "return allow(event, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz');" })
+                        </td>
+                    </tr>
+                  
+                </table>
+
+                <br />
+                <table width="60%" align="center">
+
+                    <tr><td style="height:10px;"></td></tr>
+                    <tr>
+                        <td align="center">
+                            <input type="button" value="Clear" class="btn-report" id="btnClearSearch" />&nbsp;&nbsp;&nbsp;
+                            <input type="button" value="Search" class="btn-report" id="btnSearch" />
+                        </td>
+                    </tr>
+                </table>
+                <br />
+
+                <table width="60%" align="center">
+                    <tr>
+                        <td width="100%">
+                            <div class='content' id="divForSchoolResult">
+                                <div style="padding-left:50px;">
+                                    <label style="font-weight:bold;color:red;font-size:11px;" id="lblValResult"></label>
+                                </div>
+                                <table id="EmpTable"></table>
+                                <div id="EmpPager">
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+                </table>
+            </div>
+        </div>
+    }
+</div>

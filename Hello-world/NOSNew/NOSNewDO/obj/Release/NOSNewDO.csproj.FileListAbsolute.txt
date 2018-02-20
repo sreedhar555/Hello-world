@@ -1,0 +1,10 @@
+C:\NOS 20 FEB\NOSNew\NOSNewDO\bin\Release\NOSNewDO.dll.config
+C:\NOS 20 FEB\NOSNew\NOSNewDO\bin\Release\NOSNewDO.dll
+C:\NOS 20 FEB\NOSNew\NOSNewDO\bin\Release\NOSNewDO.pdb
+C:\NOS 20 FEB\NOSNew\NOSNewDO\bin\Release\EntityFramework.dll
+C:\NOS 20 FEB\NOSNew\NOSNewDO\bin\Release\EntityFramework.SqlServer.dll
+C:\NOS 20 FEB\NOSNew\NOSNewDO\bin\Release\EntityFramework.xml
+C:\NOS 20 FEB\NOSNew\NOSNewDO\bin\Release\EntityFramework.SqlServer.xml
+C:\NOS 20 FEB\NOSNew\NOSNewDO\obj\Release\NOSNewDO.csprojResolveAssemblyReference.cache
+C:\NOS 20 FEB\NOSNew\NOSNewDO\obj\Release\NOSNewDO.dll
+C:\NOS 20 FEB\NOSNew\NOSNewDO\obj\Release\NOSNewDO.pdb

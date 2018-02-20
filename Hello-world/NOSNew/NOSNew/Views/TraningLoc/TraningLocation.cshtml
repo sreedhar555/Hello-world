@@ -1,0 +1,341 @@
+﻿@using NOSNewDO;
+@{
+    ViewBag.Title = "TraningLocation";
+    Layout = "~/Views/Shared/_NosNewLayout.cshtml";
+}
+<link href="~/Content/styles-1.css" rel="stylesheet" media="all" />
+<link href="~/Content/Styles.css" rel="stylesheet" media="all" />
+
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+<style type="text/css">
+    .ui-jqgrid tr.jqgrow td {
+        word-wrap: break-word; /* IE 5.5+ and CSS3 */
+        white-space: pre-wrap; /* CSS3 */
+        white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+        white-space: -pre-wrap; /* Opera 4-6 */
+        white-space: -o-pre-wrap; /* Opera 7 */
+        overflow: hidden;
+        height: auto;
+        vertical-align: middle;
+        padding-top: 3px;
+        padding-bottom: 3px;
+    }
+</style>
+
+<script type="text/javascript">
+    function allow(e, str) {
+
+        var key;
+        var keychar;
+
+        if (window.event) {
+            key = window.event.keyCode;
+        }
+        else if (e) {
+            key = e.which;
+        }
+        else {
+            return true;
+        }
+        keychar = String.fromCharCode(key);
+        if ((key == null) || (key == 0) || (key == 8) || (key == 9) || (key == 13) || (key == 27)) {
+            return true;
+        }
+        else if (str == '') {
+            return true;
+        }
+        else if (((str).indexOf(keychar) > -1)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    $(document).ready(function () {
+        $("#ddlSSCList").on("change", function () {
+            if ($("#ddlSSCList option:selected").attr("value") == "" || $("#ddlSSCList option:selected").attr("value") == "0") {
+                $('#ddlJobRoleList').empty();
+            }
+            else {
+                $.ajax({
+                    url: '../TraningLoc/GetJobRoleBySSCId',
+                    type: 'post',
+                    data: {
+                        SSCId: $("#ddlSSCList option:selected").attr("value")
+                    },
+                    success: function (response) {
+
+                        var $select = $('#ddlJobRoleList');
+                        $select.empty();
+                        $('<option>', {
+                            value: 0
+                        }).html("------Select------").appendTo($select);
+                        $.each(response, function (i, jobrole) {
+                            $('<option>', {
+                                value: jobrole.InstanceSubClassificationId
+                            }).html(jobrole.SubClassificationName).appendTo($select);
+                        });
+
+                    }
+                });
+            }
+        });
+        $("#btnClear").on("click", function () {
+            window.open("../TraningLoc/TraningLocation", '_self', false);
+        });
+        var LocationName = "", TrainingLocCode = "", ClsRoomCapacity = "", NoOfRooms = "", Descriptions = "", StateId = "", City = "", Address = "",SSCId="",JobRoleId="", createdby = "", Createddate = "", Updatedby = "", Updatedate = "",TrainingLlocationsId = "", Descript = "",CreatedBy="";
+        $("#btnSubmit").on("click", function () {
+            debugger;
+            LocationName = document.getElementById("txtLocationName").value;
+            TrainingLocCode = document.getElementById("txtTraningCode").value;
+            ClsRoomCapacity = document.getElementById("txtCapacity").value;
+            NoOfRooms = document.getElementById("txtRooms").value;
+            Descriptions = document.getElementById("txtDescription").value;
+            StateId = $("#ddlStateList").val();
+            City = document.getElementById("txtCity").value;
+            Address = document.getElementById("txtAddress").value;
+            SSCId = $("#ddlSSCList").val();
+            JobRoleId = $("#ddlJobRoleList").val();
+            debugger;
+            SaveDetails = [];
+            SaveDetails.push({
+                "LocationName": LocationName,
+                "TrainingLocCode": TrainingLocCode,
+                "ClsRoomCapacity": ClsRoomCapacity,
+                "NoOfRooms": NoOfRooms,
+                "Descriptions": Descriptions,
+                "StateId": StateId,
+                "City": City,
+                "Address": Address,
+                "SSCId": SSCId,
+                "JobRoleId":JobRoleId,
+                "createdby": createdby,
+                "Createddate": Createddate,
+                "Updatedby": Updatedby,
+                "Updatedate": Updatedate
+            });
+            var checkvalidation = validateInputs();
+            if (checkvalidation) {
+                document.getElementById("lblValMessage").innerHTML = "";
+                debugger;
+                $.ajax({
+                type: "POST",
+                url: "../TraningLoc/SaveTraningLocDetails",
+                data: JSON.stringify({ 'SaveDetails': SaveDetails }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "text",
+                success: function (response) {
+                    debugger;
+
+                    if (response == 1) {
+                        document.getElementById("btnSubmit").disabled = true;
+                        document.getElementById("lblValMessage").innerHTML = "Training Details submitted successfully";
+                    }
+
+                    else {
+                        document.getElementById("btnSubmit").disabled = false;
+                        document.getElementById("lblValMessage").innerHTML = "Invalid Training Details";
+                    }
+                },
+                error: function (requestObject, error, errorThrown) {
+                    debugger;
+                    document.getElementById("lblValMessage").innerHTML = "Unable to insert the record";
+                    alert(requestObject.responseText);
+                    ("Error");
+                }
+            });
+
+            }
+        });
+
+    function validateInputs() {
+        debugger;
+        var valMsg = "";
+        var newline = "\r\n";
+
+        if (LocationName == "" && TrainingLocCode == "" && StateId == "" && City == ""&& JobRoleId=="") {
+            valMsg = "Please fill all mandatory fields.\n *LocationName\n *LocationCode\n *State\n *City\n *JobRole";
+            valMsg += newline;
+        }
+        else {
+            debugger;
+            if (LocationName == "") {
+                if (valMsg == "") {
+                    valMsg = " Please enter LocationName";
+                } else {
+                    valMsg = valMsg + ", LocationName";
+                }
+            }
+
+            if (TrainingLocCode == "") {
+                if (valMsg == "") {
+                    valMsg = "Please enetr LocationCode";
+                } else {
+                    valMsg = valMsg + ", LocationCode";
+                }
+            }
+
+            if (StateId == "") {
+                if (valMsg == "") {
+                    valMsg = "Please select State";
+                } else {
+                    valMsg = valMsg + ", State ";
+                }
+            }
+
+            if (City == "") {
+                if (valMsg == "") {
+                    valMsg = "Please enter City";
+                } else {
+                    valMsg = valMsg + ",  City";
+                }
+            }
+            if (JobRoleId == "") {
+                if (valMsg == "") {
+                    valMsg = "Please select JobRole";
+                } else {
+                    valMsg = valMsg + ",  JobRole";
+                }
+            }
+        }
+        if (valMsg == "") {
+            if (valMsg == "") {
+
+                return true;
+
+            } else {
+                document.getElementById("lblValMessage").innerHTML = valMsg;
+                return false;
+            }
+        }
+        else {
+            document.getElementById("lblValMessage").innerHTML = valMsg;
+            return false;
+        }
+    }
+    });
+</script>
+<div class="col-lg-12">
+    @{
+        IEnumerable<StateDO> statelist = ViewData["StateList"] as IEnumerable<StateDO>;
+        IEnumerable<SscDO> sscList = ViewData["SSCList"] as IEnumerable<SscDO>;
+    }
+    @using (Html.BeginForm("TraningLocation", "TraningLoc", FormMethod.Post))
+    {
+        <div class="page-header filled full-block light" style="margin-top:10px;">
+            <div class="row">
+                <h2 style="text-align:center; color:#92298e ; font-family:Calibri; font-size:25px; font-weight:bold; text-transform: uppercase;">Training Locations</h2>
+                <table width="60%" align="center">
+                    <tr>
+                        <td align="left">
+                            <div>
+                                <label style="font-weight:bold;color:red;font-size:11px;" id="lblValMessage"></label>
+                            </div>
+                        </td>
+                        <td align="right">
+                            <div>
+                                @Html.ActionLink("Back To Search", "SearchTrainingDetails", "TraningLoc")
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+                <table width="60%" align="center">
+                    <tr>
+                        <td class="pplBG">
+                            <span>&nbsp;Create Training Location</span>
+                        </td>
+                        <td align="right"></td>
+                    </tr>
+                </table><br />
+                <table width="60%" align="center" class="tablesideborders">
+                    <tr>
+                        <td width="12%" class="shaalatxtright" style="height:26px;">
+                            <font style="color:red;">*</font>Location Name:
+                        </td>
+                        <td width="22%">
+                            @Html.TextBox("txtLocationName", null, new { @class = "usertextbox", id = "txtLocationName", maxlength = "50", onkeypress = "return allow(event, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ');" })
+                        </td>
+                        <td width="12%" class="shaalatxtright"><font style="color:red;">*</font>Location Code:</td>
+                        <td width="22%">
+                            @Html.TextBox("txtTraningCode", null, new { @class = "usertextbox", id = "txtTraningCode", maxlength = "50", onkeypress = "return allow(event, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789');" })
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="12%" class="shaalatxtright" style="height:26px;">
+                            Class Strength:
+                        </td>
+                        <td width="22%">
+                            @Html.TextBox("txtCapacity", null, new { @class = "usertextbox", id = "txtCapacity", maxlength = "50", onkeypress = "return allow(event, '0123456789');" })
+                        </td>
+                        <td width="12%" class="shaalatxtright"> Room Nos:</td>
+                        <td width="22%">
+                            @Html.TextBox("txtRooms", null, new { @class = "usertextbox", id = "txtRooms", maxlength = "50", onkeypress = "return allow(event, '0123456789');" })
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="12%" class="shaalatxtright" style="height:26px;">
+                            Description:
+                        </td>
+                        <td width="22%">
+                            @Html.TextBox("txtDescription", null, new { @class = "usertextbox", id = "txtDescription", maxlength = "100", onkeypress = "return allow(event, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ');" })
+                        </td>
+                        <td width="12%" class="shaalatxtright" style="height:26px;"><font style="color:red;">*</font>  State</td>
+                        <td width="22%">
+                            @Html.DropDownList("ddlStateList", new SelectList(statelist, "StateId", "StateName"), "-----Select-----", new { @class = "blueDropdown" })
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="12%" class="shaalatxtright" style="height:26px;">
+                            <font style="color:red;">*</font>City:
+                        </td>
+                        <td width="22%">
+                            @Html.TextBox("txtCity", null, new { @class = "usertextbox", id = "txtCity", maxlength = "50", onkeypress = "return allow(event, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ');" })
+                        </td>
+                        <td width="12%" class="shaalatxtright">Address:</td>
+                        <td width="22%">
+                            @Html.TextBox("txtAddress", null, new { @class = "usertextbox", id = "txtAddress", maxlength = "50", onkeypress = "return allow(event, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 -~!@#$%^&*()`[]{};:<>');" })
+                        </td>
+                    </tr>
+                    @*<tr>
+                            <td width="12%" class="shaalatxtright" style="height:26px;"><font style="color:red;"></font> SSC: </td>
+                            <td width="22%">
+                                @Html.DropDownList("ddlSSCList", new SelectList(sscList, "InstanceClassificationId", "ClassificationName"), "-----Select-----", new { @class = "blueDropdown" })
+                            </td>
+                            <td width="12%" class="shaalatxtright"><font style="color:red;">*</font> Job Role: </td>
+                            <td width="22%">
+                                @Html.DropDownList("ddlJobRoleList", new SelectList("", ""), new { @class = "blueDropdown" })
+                            </td>
+                        </tr>*@
+                </table>
+                <br />
+                <table width="60" align="center">
+
+                    <tr><td style="height:10px;"></td></tr>
+                    <tr>
+                        <td align="center">
+                            <input type="button" value="Clear" class="btn-report" id="btnClear" />&nbsp;&nbsp;&nbsp;
+                            <input type="button" value="Submit" class="btn-report" id="btnSubmit" />
+                        </td>
+                    </tr>
+                </table>
+                <br />
+
+                <table width="60%" align="center">
+                    <tr>
+                        <td width="100%">
+                            <div class='content' id="divForSchoolResult">
+                                <div style="padding-left:50px;">
+                                    <label style="font-weight:bold;color:red;font-size:11px;" id="lblValResult"></label>
+                                </div>
+                                <table id="EmpTable"></table>
+                                <div id="EmpPager">
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+                </table>
+            </div>
+        </div>
+    }
+</div>

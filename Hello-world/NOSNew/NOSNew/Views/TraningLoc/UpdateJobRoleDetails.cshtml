@@ -1,0 +1,290 @@
+﻿@using NOSNewDO;
+
+@{
+    ViewBag.Title = "UpdateJobRoleDetails";
+    Layout = "~/Views/Shared/_NosNewLayout.cshtml";
+}
+<link href="~/Content/styles-1.css" rel="stylesheet" media="all" />
+<link href="~/Content/Styles.css" rel="stylesheet" media="all" />
+
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+<style type="text/css">
+    .ui-jqgrid tr.jqgrow td {
+        word-wrap: break-word; /* IE 5.5+ and CSS3 */
+        white-space: pre-wrap; /* CSS3 */
+        white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+        white-space: -pre-wrap; /* Opera 4-6 */
+        white-space: -o-pre-wrap; /* Opera 7 */
+        overflow: hidden;
+        height: auto;
+        vertical-align: middle;
+        padding-top: 3px;
+        padding-bottom: 3px;
+    }
+</style>
+
+<script type="text/javascript">
+    //function getInstances(name) {
+    //    name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+    //    var regexS = "[\\?&]" + name + "=([^&#]*)";
+    //    var regex = new RegExp(regexS);
+    //    var results = regex.exec(window.location.href);
+    //    if (results == null)
+    //        return "";
+    //    else
+    //        return results[1];
+    //}
+
+    //InstanceSubClassificationId = getInstances("ClassificationName");
+    //alert(InstanceSubClassificationId);
+    function allow(e, str) {
+
+        var key;
+        var keychar;
+
+        if (window.event) {
+            key = window.event.keyCode;
+        }
+        else if (e) {
+            key = e.which;
+        }
+        else {
+            return true;
+        }
+        keychar = String.fromCharCode(key);
+        if ((key == null) || (key == 0) || (key == 8) || (key == 9) || (key == 13) || (key == 27)) {
+            return true;
+        }
+        else if (str == '') {
+            return true;
+        }
+        else if (((str).indexOf(keychar) > -1)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+   
+    debugger;
+    $(document).ready(function () {
+        var hasCriteria = false;
+        function getUrlVars() {
+            var vars = [], hash;
+            var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+            for (var i = 0; i < hashes.length; i++) {
+                hash = hashes[i].split('=');
+                vars.push(hash[0]);
+                vars[hash[0]] = hash[1];
+            }
+            return vars;
+        }
+        var InstanceSubClassificationId = getUrlVars()["InstanceSubClassificationId"];
+        document.getElementById("hdnInstanceSubClassificationId").value = InstanceSubClassificationId;
+
+        if (InstanceSubClassificationId != 0) {
+            document.getElementById("btnSave").value = "Update";
+            document.getElementById("btnClear").setAttribute("style", "font-size:11px;font-weight:bold;display:none;");
+        }
+        else {
+            document.getElementById("btnSave").value = "Save";
+            document.getElementById("btnClear").setAttribute("style", "font-size:11px;font-weight:bold;display:block;");
+        }
+
+        $("#btnClear").on("click", function () {
+            window.open("../TraningLoc/UpdateJobRoleDetails", '_self', false);
+        });
+
+        var InstanceId = 640, InstanceClassificationId = 6519, SubClassificationName = "", SubClassificationDescription = "", ResultsModeId = "", SSCId = "", JobRole = "", JobRoleId = "", JobRoleDescription = "", CreatedBy = "", CreatedDate = "";
+
+        $("#btnSave").on("click", function () {
+
+            debugger;
+            InstanceSubClassificationId = document.getElementById("hdnInstanceSubClassificationId").value;
+            var actionName = "";
+            if (InstanceSubClassificationId == 0) {
+                actionName = "Save";
+            } else {
+                actionName = "Update";
+            }
+
+            debugger;
+            SSCId = $("#ddlSSCList").val();
+            JobRole = document.getElementById("txtJobRole").value;
+            JobRoleDescription = document.getElementById("txtJobRoleDesc").value;
+
+            UpdateJobRole = [];
+            UpdateJobRole.push({
+                "InstanceId": InstanceId,
+                "InstanceClassificationId": InstanceClassificationId,
+                "InstanceSubClassificationId":InstanceSubClassificationId,
+                "SubClassificationName": JobRole,
+                "SubClassificationDescription": JobRoleDescription,
+                "ResultsModeId": ResultsModeId,
+                "CreatedBy": CreatedBy,
+                "CreatedDate": CreatedDate
+            });
+            debugger;
+            $.ajax({
+                type: "POST",
+                url: "../TraningLoc/UpdateJobRoleDetail",
+                data: JSON.stringify({ 'UpdateJobRole': UpdateJobRole }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "text",
+                success: function (d) {
+                    if (parseInt(d) > 0) {
+                        document.getElementById("lblValMessage").innerHTML = "JobRole Details Updated Successfully!.";
+                        if (actionName == "Save") {
+                            document.getElementById("hdnInstanceSubClassificationId").value = parseInt(d);
+                            TrainingPartnerId = parseInt(d);
+                        }
+                        document.getElementById("btnSave").setAttribute("disabled", "disabled");
+                        document.getElementById("btnClear").setAttribute("style", "font-size:11px;font-weight:bold;display:none;");
+
+                    }
+                    else {
+                        document.getElementById("lblValMessage").innerHTML = "SubClassification Name already exists.";
+                        document.getElementById("btnSave").removeAttribute("disabled");
+                        document.getElementById("btnClear").setAttribute("style", "font-size:11px;font-weight:bold;display:block;");
+                    }
+
+
+                }
+
+            });
+
+        });
+    });
+</script>
+<div class="col-lg-12">
+    @{
+        IEnumerable<SscDO> sscList = ViewData["SSCList"] as IEnumerable<SscDO>;
+        SaveJobRoleDO objJobRoleDO = ViewData["JobRoleDetails"] as SaveJobRoleDO;
+        bool updateJobRoleDetails = false;
+        if (ViewData["UpdateJobRole"] != null)
+        {
+            updateJobRoleDetails = (bool)ViewData["UpdateJobRole"];
+        }
+    }
+    @using (Html.BeginForm("UpdateJobRoleDetails", "TraningLoc", FormMethod.Post))
+    {
+        <div class="page-header filled full-block light" style="margin-top:10px;">
+            <div class="row">
+                <h2 style="text-align:center; color:#92298e ; font-family:Calibri; font-size:25px; font-weight:bold; text-transform:uppercase;">Update JobRole</h2>
+                <table width="60%" align="center">
+                    <tr>
+                        <td align="left">
+                            <div>
+                                <label style="font-weight:bold;color:red;font-size:11px;" id="lblValMessage"></label>
+                            </div>
+                        </td>
+                        <td align="right">
+                            <div>
+                                @Html.ActionLink("Back to Search", "SearchJobRole", "TraningLoc", new { InstanceSubClassificationId = 0 }, null)
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+                <table width="60%" align="center">
+                    <tr>
+                        <td class="pplBG">
+                            <span>&nbsp;Update JobRole</span>
+                        </td>
+                        <td align="right"></td>
+                    </tr>
+                </table><br />
+
+                <table width="60%" align="center" class="tablesideborders">
+                    <tr>
+                        <td width="12%" class="shaalatxtright" style="height:26px;">
+                            <font style="color:red;"></font>SSC
+                        </td>
+                        <td width="22%">
+                            @{
+                                if (objJobRoleDO != null)
+                                {
+                                    @Html.DropDownList("ddlSSCList", new SelectList(sscList, "InstanceClassificationId", "ClassificationName", objJobRoleDO.InstanceClassificationId), "-----Select-----", new { @class = "blueDropdown" })
+                                }
+                                else
+                                {
+                                    @Html.DropDownList("ddlSSCList", new SelectList(sscList, "InstanceClassificationId", "ClassificationName"), "-----Select-----", new { @class = "blueDropdown" })
+                                }
+                            }
+                        </td>
+                        <td width="12%" class="shaalatxtright"><font style="color:red;"></font>JobRole</td>
+                        <td width="22%">
+                            @{
+                                if (objJobRoleDO != null)
+                                {
+                                    @Html.TextBox("txtJobRole", objJobRoleDO.SubClassificationName, new { @class = "usertextbox", id = "txtJobRole", maxlength = "50", onkeypress = "return allow(event, ' ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ');" })
+                                }
+                                else
+                                {
+                                    @Html.TextBox("txtJobRole", null, new { @class = "usertextbox", id = "txtJobRole", maxlength = "50", onkeypress = "return allow(event, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ');" })
+                                }
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="12%" class="shaalatxtright" style="height:26px;">
+                            JobRole Description
+                        </td>
+                        <td width="22%">
+                            @{
+                                if (objJobRoleDO != null)
+                                {
+                                    @Html.TextBox("txtJobRoleDesc", objJobRoleDO.SubClassificationDescription, new { @class = "usertextbox", id = "txtJobRoleDesc", maxlength = "50", onkeypress = "return allow(event, ' ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz');" })
+                                }
+                                else
+                                {
+                                    @Html.TextBox("txtJobRoleDesc", null, new { @class = "usertextbox", id = "txtJobRoleDesc", maxlength = "50", onkeypress = "return allow(event, ' ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz');" })
+                                }
+                            }
+                        </td>
+                    </tr>
+                </table>
+                <br />
+                <table width="60" align="center">
+
+                    <tr><td style="height:10px;"></td></tr>
+                    <tr>
+                        <td colspan="2">
+                            <input type="hidden" id="hdnInstanceSubClassificationId" />
+
+                            @{
+                                if (objJobRoleDO != null)
+                                {
+                                    if (updateJobRoleDetails == true)
+                                    {
+                                        <input type="hidden" id="hdnupdateJobRoleDetails" value="1" />
+                                    }
+                                    else
+                                    {
+                                        <input type="hidden" id="hdnupdateJobRoleDetails" value="0" />
+                                    }
+
+                                }
+                                else
+                                {
+
+                                    <input type="hidden" id="hdnupdateJobRoleDetails" value="0" />
+
+
+                                }
+
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" colspan="2">
+
+                            <input type="button" value="Clear" style="font-size:11px;font-weight:bold;" id="btnClear" />&nbsp;
+                            <input type="button" value="Save" style="font-size:11px;font-weight:bold;" id="btnSave" />&nbsp;
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+        </div>
+                                }
+</div>

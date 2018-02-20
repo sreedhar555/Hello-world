@@ -1,0 +1,285 @@
+﻿@using NOSNewDO
+@{
+    ViewBag.Title = "Manage Training Center";
+    //Layout = null;
+    Layout = "~/Views/Shared/_NosNewLayout.cshtml";
+}
+<link href="~/Content/styles-1.css" rel="stylesheet" media="all" />
+<link href="~/Content/Styles.css" rel="stylesheet" media="all" />
+
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+
+@*<script src="~/Scripts/jquery-1.9.0.min.js"></script>*@
+<script src="~/Scripts/jquery.jqGrid.js"></script>
+<script src="~/Scripts/grid.locale-en.js"></script>
+<link href="~/Content/JQGridReq/jquery-ui-1.9.2.custom.css" rel="stylesheet" type="text/css" />
+<link href="~/Content/JQGridReq/ui.jqgrid.css" rel="stylesheet" type="text/css" />
+<style type="text/css">
+    .ui-jqgrid tr.jqgrow td {
+        word-wrap: break-word; /* IE 5.5+ and CSS3 */
+        white-space: pre-wrap; /* CSS3 */
+        white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+        white-space: -pre-wrap; /* Opera 4-6 */
+        white-space: -o-pre-wrap; /* Opera 7 */
+        overflow: hidden;
+        height: auto;
+        vertical-align: middle;
+        padding-top: 3px;
+        padding-bottom: 3px;
+    }
+</style>
+
+<script type="text/javascript">
+    function allow(e, str) {
+
+        var key;
+        var keychar;
+
+        if (window.event) {
+            key = window.event.keyCode;
+        }
+        else if (e) {
+            key = e.which;
+        }
+        else {
+            return true;
+        }
+        keychar = String.fromCharCode(key);
+        if ((key == null) || (key == 0) || (key == 8) || (key == 9) || (key == 13) || (key == 27)) {
+            return true;
+        }
+        else if (str == '') {
+            return true;
+        }
+        else if (((str).indexOf(keychar) > -1)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+
+    $(document).ready(function () {
+        //BindSearchResult();
+        $("#btnSearch").on("click", function () {
+            BindSearchResult();
+        });
+
+
+        var sscId = "";
+
+        function BindSearchResult() {
+            var TcName = "", tpId = 0, SmartId = "", sdmsId = "", TcAddress = "", TcDescription = "", TcStartdt = "", pocName = "", pocMobile = "",
+          stateList = "", cityList = "", SSC = 0;
+
+
+            TcName = document.getElementById("txtTCName").value;
+            tpId = document.getElementById("txtTPId").value;
+            SmartId = document.getElementById("txtSmartId").value;
+            sdmsId = document.getElementById("txtSDMSID").value;
+            stateList = $("#ddlStateList option:selected").text();
+            //stateList = document.getElementById("ddlStateList").value;
+            cityList = document.getElementById("txtCityList").value;
+
+            tcSearchDetail = [];
+            tcSearchDetail.push({
+                "TrainingCenterName": TcName,
+                "TrainingPartnerId": tpId,
+                "TrainingCenterIDSmartID": SmartId,
+                "SDMSID" :sdmsId,
+                "StateId": stateList,
+                "City": cityList
+            });
+            $.ajax({
+                url: "../TrainingCenter/SearchTrainingCenterDetail",
+                type: 'post',
+                data: JSON.stringify({ 'tcSearchDetail': tcSearchDetail }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (d) {
+                    var result = JSON.stringify(d);
+                    if (result != null) {
+                        $("#lblValResult").innerHTML = "";
+                        $('#EmpTable').jqGrid('GridUnload');
+                        jQuery("#EmpTable").jqGrid({
+                            datatype: "local",
+                            colNames: [ "TrainingCenterId","TrainingCenter Name", "TP Id", "TC SmartID", "SDMSID", "Center Address", "Description", "Start Date", "POC Name", "POC Mobile", "City", "StateId", "Delete",
+
+                            ],
+                            colModel: [
+                                    { name: "TrainingCenterId", index: "TrainingCenterId", width: 100, align: "center", hidden: true },
+
+                                    { name: "TrainingCenterName", index: "TrainingCenterName", width: 150, align: "center", formatter: addLink },
+                                    { name: "TrainingPartnerId", index: "TrainingPartnerId", width: 100, align: "center", },
+                                    { name: "TrainingCenterIDSmartID", index: "TrainingCenterIDSmartID", width: 100, align: "center", },
+                                    { name: "SDMSID", index: "SDMSID", width: 100, align: "center", },
+                                    { name: "CenterAddress", index: "CenterAddress", width: 150, align: "center", },
+                                    { name: "CenterDescription", index: "CenterDescription", width: 200, align: "center", },
+                                    { name: "StartDate", index: "StartDate", width: 100, align: "center", },
+                                    { name: "PocName", index: "PocName", width: 100, align: "center", },
+                                    { name: "PocMobileNo", index: "PocMobileNo", width: 120, align: "center", },
+                                    { name: "City", index: "City", width: 150, align: "center", },
+                                    { name: "StateId", index: "StateId", width: 80, align: "center", },
+                                    { name: "Delete", index: "Delete", width: 80, align:"center", formatter: addImageForDelete }
+
+                            ],
+                            data: JSON.parse(result), //Load Data
+                            loadonce: true,
+                            rowList: [5, 10, 20],
+                            rowNum: 10, //Total records to display by default
+                            pager: '#EmpPager',
+                            viewrecords: true,
+                            sortorder: 'asc',
+                            gridview: true,
+                            sortname: 'FirstName',
+                            height: 'auto',
+                            altRows: true,
+                            hoverrows: true,
+                            caption: "Training Center Details"
+                        });
+                        jQuery("#EmpTable").jqGrid('navGrid', '#EmpPager', { del: false, add: false, edit: false }, {}, {}, {}, { multipleSearch: false });
+                    } else {
+                        $("#lblValResult").innerHTML = "No Data Found.";
+                        $('#EmpTable').jqGrid('GridUnload');
+                    }
+                }
+            });
+        }
+        function addImageForDelete(cellvalue, options, rowObject) {
+            var TrainingCenterId = rowObject.TrainingCenterId;
+            return "<input type=\"image\" name=\"imgDelete\" id=\"imgDelete_" + TrainingCenterId + "\" title=\"Click to delete this record\" src=\"../Content/MovetoBin.GIF\" onclick=\"return ConfirmDelete('TrainingCenter');\" style='border-width:0px;'>";
+        }
+
+        $("#btnClearSearch").on("click", function () {
+            window.open("../TrainingCenter/ManageTrainingCenter", '_self', false);
+        });
+
+    });
+
+        function addLink(cellvalue, options, rowObject) {
+
+            var TrainingCenterId = rowObject.TrainingCenterId;
+
+            return "<a href='#' class='ManageTrainingCenter' id='ManageTrainingCenter_" + options.rowId + "_" + TrainingCenterId + " ' style='height:25px;width:120px;' type='button' title='Manage Training Center' onclick=\"ViewTPDetails(" + TrainingCenterId + ")\" >" + rowObject.TrainingCenterName + "</a>";
+
+        }
+        function ViewTPDetails(TrainingCenterId) {
+
+            window.open("/TrainingCenter/UpdateTrainingCenter?TrainingCenterId=" + TrainingCenterId, "_self");
+            
+        }
+
+        function ConfirmDelete(msg) {
+            return confirm("Are you sure you want to delete " & msg);
+        }
+</script>
+
+<div class="col-lg-12">
+    @{
+        IEnumerable<StateListDO> stateList = ViewData["StateList"] as IEnumerable<StateListDO>;
+
+    }
+    @using (Html.BeginForm("ManageTrainingCenter", "TrainingCenter", FormMethod.Post))
+    {
+        <div class="page-header filled full-block light" style="margin-top:10px;">
+            <div class="row">
+                <h2 style="text-align:center; color:#92298e ; font-family:Calibri; font-size:25px; font-weight:bold; text-transform:uppercase;">Manage Training Center</h2>
+
+                <table width="60%" align="center">
+                    <tr>
+                        <td align="left">
+                            <div>
+                                <label style="font-weight:bold;color:red;font-size:11px;" id="lblValMessage"></label>
+                            </div>
+                        </td>
+                        <td align="right">
+                            <div>
+                                @Html.ActionLink("Create Training Center", "CreateTrainingCenter", "TrainingCenter")
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+                <table width="60%" align="center">
+                    <tr>
+                        <td class="pplBG">
+                            <span>&nbsp;Search Training Center</span>
+                        </td>
+                        <td align="right"></td>
+                    </tr>
+                </table><br />
+                <table width="60%" align="center" class="tablesideborders">
+                    <tr>
+                        <td width="12%" class="shaalatxtright" style="height:26px;">
+                            TC Name
+                        </td>
+                        <td width="22%">
+                            @Html.TextBox("txtTCName", null, new { @class = "usertextbox", id = "txtTCName", maxlength = "50", onkeypress = "return allow(event, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ');" })
+                        </td>
+                        <td width="12%" class="shaalatxtright"> TP Id </td>
+                        <td width="22%">
+                            @Html.TextBox("txtTPId", null, new { @class = "usertextbox", id = "txtTPId", maxlength = "50", onkeypress = "return allow(event, '0123456789');" })
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="12%" class="shaalatxtright" style="height:26px;">
+                            TC ID/Smart ID
+                        </td>
+                        <td width="22%">
+                            @Html.TextBox("txtSmartId", null, new { @class = "usertextbox", id = "txtSmartId", maxlength = "50", onkeypress = "return allow(event, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789');" })
+                        </td>
+                        <td width="12%" class="shaalatxtright" style="height:26px;">
+                            SDMS ID
+
+                        </td>
+                        <td width="22%">
+                            @Html.TextBox("txtSDMSID", null, new { @class = "usertextbox", id = "txtSDMSID", maxlength = "12", onkeypress = "return allow(event, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789');" })
+                        </td>
+                        
+                    </tr>
+                    <tr>
+                        <td width="12%" class="shaalatxtright"> State </td>
+                        <td width="22%">
+                            @Html.DropDownList("ddlStateList", new SelectList(stateList, "StateId", "StateName"), "-----Select-----", new { @class = "blueDropdown" })
+                        </td>
+                        <td width="12%" class="shaalatxtright"> City </td>
+                        <td width="22%">
+                            @Html.TextBox("txtCityList", null, new { @class = "usertextbox", id = "txtCityList", maxlength = "50", onkeypress = "return allow(event, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ');" })
+                        </td>
+                        
+                    </tr>
+
+                </table>
+
+                <br />
+                <table width="60%" align="center">
+
+                    <tr><td style="height:10px;"></td></tr>
+                    <tr>
+                        <td align="center">
+                            <input type="button" value="Clear" class="btn-report" id="btnClearSearch" />&nbsp;&nbsp;&nbsp;
+                            <input type="button" value="Search" class="btn-report" id="btnSearch" />
+                        </td>
+                    </tr>
+                </table>
+                <br />
+
+                <table width="60%" align="center">
+                    <tr>
+                        <td width="100%">
+                            <div class='content' id="divForSchoolResult">
+                                <div style="padding-left:50px;">
+                                    <label style="font-weight:bold;color:red;font-size:11px;" id="lblValResult"></label>
+                                </div>
+                                <table id="EmpTable"></table>
+                                <div id="EmpPager">
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+                </table>
+            </div>
+        </div>
+    }
+</div>

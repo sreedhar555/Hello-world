@@ -1,0 +1,219 @@
+﻿@using NOSNewDO
+<!DOCTYPE html>
+
+<html>
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="Online Assessment">
+
+    <meta name="keywords" content="Online Assessment Assessment Offline Assessment">
+    <meta name="author" content="Bluestone">
+    <link rel="shortcut icon" href="img/favicon.ico">
+    <title>@ViewBag.Title</title>
+    <link href="~/Content/styles-1.css" rel="stylesheet" />
+        <link href="~/Content/Styles.css" rel="stylesheet" />
+
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+
+    <link href="~/Content/CSS/bootstrap.min.css" media="screen" rel="stylesheet">
+    <link href="~/Content/CSS/main.css" rel="stylesheet" media="screen">
+
+    <link href="~/Content/CSS/c3/c3.css" rel="stylesheet">
+    <link href="~/Content/CSS/circliful/circliful.css" rel="stylesheet">
+    <link href="~/fonts/icomoon/icomoon.css" rel="stylesheet" />
+    <!--[if lt IE 9]>
+        <script src="js/html5shiv.js"></script>
+        <script src="js/respond.min.js"></script>
+    <![endif]-->
+
+
+    <script src="~/Scripts/js/modernizr-2.6.2.min.js"></script>
+    <style type="text/css">
+        .back-link a {
+            color: #4ca340;
+            text-decoration: none;
+            border-bottom: 1px #4ca340 solid;
+        }
+
+            .back-link a:hover,
+            .back-link a:focus {
+                color: #408536;
+                text-decoration: none;
+                border-bottom: 1px #408536 solid;
+            }
+
+        h1 {
+            height: 100%;
+            /* The html and body elements cannot have any padding or margin. */
+            margin: 0;
+            font-size: 14px;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 32px;
+            margin-bottom: 3px;
+        }
+
+        .entry-header {
+            text-align: left;
+            margin: 0 auto 50px auto;
+            width: 80%;
+            max-width: 978px;
+            position: relative;
+            z-index: 10001;
+        }
+
+        #demo-content {
+            padding-top: 100px;
+        }
+
+        .dropdown-submenu {
+            position: relative;
+        }
+
+            .dropdown-submenu .dropdown-menu {
+                top: 0;
+                left: 100%;
+                margin-top: -1px;
+            }
+    </style>
+
+
+</head>
+<body class="leftbar-view" style="background-color:#d0ebfc;">
+
+
+
+
+
+
+
+    @using (Html.BeginForm())
+    {
+        <header>
+            <a href="index.html" class="logo">
+                @* <img src="~/Content/img/logo.png" alt="Bluestone Assessment Online">*@
+                <img src="~/Content/Images/skillindia-nsdc.png" alt="Skill Sector Counselling" />
+               
+            </a>
+            <a style="padding-left:280px; line-height:60px; font-size:24px; color:#1f6690; font-weight:bold;">
+                Skill Sector Counselling
+                @*Online Test*@
+            </a>
+            <ul id="header-actions" class="clearfix">
+
+                <li class="list-box user-admin dropdown">
+
+                    <div class="admin-details">
+                        @*<div class="name">Srinu</div>
+                            <div class="designation">Current User</div>*@
+                        @if (Session["UserName"] != null)
+                        {
+
+                            @*<td width="30%" valign="top" class="admintxt" align="right" style="padding-right:50px;">*@
+                            @Html.Label("userName", "Welcome, " + Session["UserName"], new { style = "color:#1f6690;" })    <br />
+                            @Html.Label("LoggedInTime", "Today is " + Session["LoggedInTime"], new { style = "color:#1f6690;" })@*<a href="/Account/OnlineTestLogin"><span style="font-weight:bold;color:white;"> | <u>Logout</u></span></a>*@
+                            @*</td>*@
+                        }
+                    </div>
+                    <a id="drop4" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">
+                        <i class="icon-account_circle"></i>
+                    </a>
+                    <ul class="dropdown-menu sm">
+                        <li class="dropdown-content">
+                            @*<a href="#">
+                                    <i class="icon-warning2">
+                                    </i>Update Password<br><span>Your password will expire in 7 days.</span>
+                                </a>*@
+                            @*<a href="profile.html">Edit Profile</a>*@
+                            <a href="forgot-pwd.html">Change Password</a>
+                            @*<a href="styled-inputs.html">Settings</a>*@
+                            <a href="../Account/Logout">Logout</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+
+
+
+        </header>
+        <div class="container-fluid">
+            <nav class="navbar navbar-default">
+                <div class="navbar-header">
+                    <span class="navbar-text">Menu</span>
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#collapse-navbar" aria-expanded="false">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                </div><div class="collapse navbar-collapse" id="collapse-navbar">
+                    <ul class="nav navbar-nav">
+                        <li class="active">
+                            <a href="/TraningLoc/SearchJobRole">
+                                <i class="icon-blur_on"></i>MANAGE JOBROLE
+                            </a>
+                        </li>
+                        @*<li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                <i class="icon-business_center"></i> Manage Candidates <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a href="#">Sub Menu1</a>
+                                </li>
+                                <li>
+                                    <a href="#">Sub Menu2</a>
+                                </li>
+                                <li class="dropdown-submenu">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Sub Menu3 <span class="caret"></span></a>
+                                    <ul class="dropdown-menu"><li><a href="#">Sub Menu1</a></li></ul>
+                                </li>
+                                 
+                            </ul>
+                        </li>*@
+                        @*<li><a href="/TraningLoc/SearchJobRole"><i class="icon-user3"></i>Manage JobRoles</a></li>*@
+                        <li><a href="/TraningLoc/SearchTrainingDetails"><i class="icon-user3"></i>Training Locations</a></li>
+                        <li><a href="/MasterTrainers/SearchMasterTrainers"><i class="icon-user3"></i>Master Trainers</a></li>
+                        <li><a href="/Trainers/ManageTrainers"><i class="icon-user3"></i>Trainers</a></li>
+                        <li><a href="/TrainingPartner/ManageTrainingPartner"><i class="icon-user3"></i>Training Partner</a></li>
+                        <li><a href="/TrainingCenter/ManageTrainingCenter"><i class="icon-user3"></i>Training Center</a></li>
+
+                    </ul>
+                </div>
+            </nav>
+            <section>
+                <div>
+
+                    <div>
+                        @RenderBody()
+                    </div>
+
+                </div>
+
+            </section>
+        </div>
+
+        //<footer>© Online Assessment <span>2017</span></footer>
+        <footer>© Skill Sector Counselling <span>2018</span></footer>
+
+
+
+
+
+
+
+
+
+
+    <!--Leftbar End Here-->
+    <!--Page Container Start Here-->
+
+    }
+
+
+    @*<script src="~/Content/js/jquery.js"></script>*@
+    <script src="~/Content/js/bootstrap.min.js"></script>
+</body>
+</html>

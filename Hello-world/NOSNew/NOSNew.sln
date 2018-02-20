@@ -1,0 +1,81 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NOSNew", "NOSNew\NOSNew.csproj", "{D6627FB4-E46B-4BCE-8695-B3DFE2EDB1EA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NOSNew.Tests", "NOSNew.Tests\NOSNew.Tests.csproj", "{13001F9F-7E94-44CC-8ACC-A622EE2203B7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NOSNewDO", "NOSNewDO", "{B08C03C7-397D-4DA7-A276-2AC3A020DB5E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NOSNewDO", "NOSNewDO\NOSNewDO.csproj", "{4B7E1714-F04C-44A7-9A26-AD692A28866E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NOSNewBL", "NOSNewBL", "{DE3107B8-D743-4C90-B465-7DF990087064}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NOSNewBL", "NOSNewBL\NOSNewBL.csproj", "{6973B9AF-317E-4001-B968-11F099D01542}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NOSNewDAL", "NOSNewDAL", "{F2805F12-DEFD-4B0F-8A2C-53D3B1C4F9A7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NOSNewDAL", "NOSNewDAL\NOSNewDAL.csproj", "{61565CAA-3844-4464-AAEC-322C4373B36A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D6627FB4-E46B-4BCE-8695-B3DFE2EDB1EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D6627FB4-E46B-4BCE-8695-B3DFE2EDB1EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D6627FB4-E46B-4BCE-8695-B3DFE2EDB1EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D6627FB4-E46B-4BCE-8695-B3DFE2EDB1EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{13001F9F-7E94-44CC-8ACC-A622EE2203B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{13001F9F-7E94-44CC-8ACC-A622EE2203B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{13001F9F-7E94-44CC-8ACC-A622EE2203B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{13001F9F-7E94-44CC-8ACC-A622EE2203B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B7E1714-F04C-44A7-9A26-AD692A28866E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B7E1714-F04C-44A7-9A26-AD692A28866E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B7E1714-F04C-44A7-9A26-AD692A28866E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B7E1714-F04C-44A7-9A26-AD692A28866E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6973B9AF-317E-4001-B968-11F099D01542}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6973B9AF-317E-4001-B968-11F099D01542}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6973B9AF-317E-4001-B968-11F099D01542}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6973B9AF-317E-4001-B968-11F099D01542}.Release|Any CPU.Build.0 = Release|Any CPU
+		{61565CAA-3844-4464-AAEC-322C4373B36A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{61565CAA-3844-4464-AAEC-322C4373B36A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{61565CAA-3844-4464-AAEC-322C4373B36A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{61565CAA-3844-4464-AAEC-322C4373B36A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4B7E1714-F04C-44A7-9A26-AD692A28866E} = {B08C03C7-397D-4DA7-A276-2AC3A020DB5E}
+		{6973B9AF-317E-4001-B968-11F099D01542} = {DE3107B8-D743-4C90-B465-7DF990087064}
+		{61565CAA-3844-4464-AAEC-322C4373B36A} = {F2805F12-DEFD-4B0F-8A2C-53D3B1C4F9A7}
+	EndGlobalSection
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 6
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = http://192.168.1.172:8080/tfs/defaultcollection
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = NOSNew.Tests\\NOSNew.Tests.csproj
+		SccProjectName1 = NOSNew.Tests
+		SccLocalPath1 = NOSNew.Tests
+		SccProjectUniqueName2 = NOSNew\\NOSNew.csproj
+		SccProjectName2 = NOSNew
+		SccLocalPath2 = NOSNew
+		SccProjectUniqueName3 = NOSNewDO\\NOSNewDO.csproj
+		SccProjectTopLevelParentUniqueName3 = NOSNew.sln
+		SccProjectName3 = NOSNewDO
+		SccLocalPath3 = NOSNewDO
+		SccProjectUniqueName4 = NOSNewBL\\NOSNewBL.csproj
+		SccProjectTopLevelParentUniqueName4 = NOSNew.sln
+		SccProjectName4 = NOSNewBL
+		SccLocalPath4 = NOSNewBL
+		SccProjectUniqueName5 = NOSNewDAL\\NOSNewDAL.csproj
+		SccProjectTopLevelParentUniqueName5 = NOSNew.sln
+		SccProjectName5 = NOSNewDAL
+		SccLocalPath5 = NOSNewDAL
+	EndGlobalSection
+EndGlobal

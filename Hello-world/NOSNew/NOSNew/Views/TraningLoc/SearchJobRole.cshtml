@@ -1,0 +1,210 @@
+﻿@using NOSNewDO;
+@{
+    ViewBag.Title = "SearchJobRole";
+    Layout = "~/Views/Shared/_NosNewLayout.cshtml";
+}
+<style type="text/css">
+    .ui-jqgrid tr.jqgrow td {
+        word-wrap: break-word; /* IE 5.5+ and CSS3 */
+        white-space: pre-wrap; /* CSS3 */
+        white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+        white-space: -pre-wrap; /* Opera 4-6 */
+        white-space: -o-pre-wrap; /* Opera 7 */
+        overflow: hidden;
+        height: auto;
+        vertical-align: middle;
+        padding-top: 3px;
+        padding-bottom: 3px;
+    }
+</style>
+
+<link href="~/Content/styles-1.css" rel="stylesheet" media="all" />
+<link href="~/Content/Styles.css" rel="stylesheet" media="all" />
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+<script src="~/Content/combodate.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+@*<script src="~/Scripts/jquery-1.9.0.min.js"></script>*@
+<script src="~/Scripts/jquery.jqGrid.js"></script>
+<script src="~/Scripts/grid.locale-en.js"></script>
+<link href="~/Content/JQGridReq/jquery-ui-1.9.2.custom.css" rel="stylesheet" type="text/css" />
+<link href="~/Content/JQGridReq/ui.jqgrid.css" rel="stylesheet" type="text/css" />
+<script src="~/Scripts/classes.js"></script>
+<link href="~/Content/styles-calendar.css" rel="stylesheet" />
+<script type="text/javascript" src="~/Content/ng_ui_lite.js"></script>
+<script type="text/javascript" src="~/Content/timepicker_lite.js"></script>
+<script type="text/javascript" src="~/Content/ng_lite.js"></script>
+<script type="text/javascript">
+
+
+    function allow(e, str) {
+
+        var key;
+        var keychar;
+
+        if (window.event) {
+            key = window.event.keyCode;
+        }
+        else if (e) {
+            key = e.which;
+        }
+        else {
+            return true;
+        }
+        keychar = String.fromCharCode(key);
+        if ((key == null) || (key == 0) || (key == 8) || (key == 9) || (key == 13) || (key == 27)) {
+            return true;
+        }
+        else if (str == '') {
+            return true;
+        }
+        else if (((str).indexOf(keychar) > -1)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    $(document).ready(function () {
+
+        $("#btnClear").on("click", function () {
+            window.open("../TraningLoc/SearchJobRole", '_self', false);
+        });
+        var InstanceId = 640, InstanceClassificationId =6519,ClassificationName="";
+        $("#btnSearch").on("click", function () {
+            BindSearchResult();
+        });
+        function BindSearchResult() {
+            SearchJobRole = [];
+            SearchJobRole.push({
+                "InstanceId":InstanceId,
+                "InstanceClassificationId": InstanceClassificationId,
+            });
+            $.ajax({
+                type: "POST",
+                url: "../TraningLoc/SearchJobRoleDetails",
+                data: JSON.stringify({ 'SearchJobRole': SearchJobRole }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (d) {
+                    debugger;
+                    var result = JSON.stringify(d);
+                    if (result != null) {
+
+                        $("#lblValResult").innerHTML = "";
+                        $('#EmpTable').jqGrid('GridUnload');
+                        jQuery("#EmpTable").jqGrid({
+
+                            datatype: "local",
+                            colNames: ["InstanceSubClassificationId", "Job Role", "SSC"],
+                            colModel: [
+
+                                { name: "InstanceSubClassificationId", index: "InstanceSubClassificationId", width: 150, align: "center",hidden:true },
+                                { name: "SubClassificationName", index: "SubClassificationName", width: 350, align: "center", formatter: addLink },
+                                { name: "SubClassificationDescription", index: "SubClassificationDescription", width: 200, align: "center" },
+                            ],
+                            data: JSON.parse(result), //Load Data
+                            loadonce: true,
+                            rowList: [5, 10, 20],
+                            rowNum: 10, //Total records to display by default
+                            pager: '#EmpPager',
+                            viewrecords: true,
+                            sortorder: 'asc',
+                            gridview: true,
+                            sortname: 'FirstName',
+                            height: 'auto',
+                            altRows: true,
+                            hoverrows: true,
+                            caption: "Search JobRole Details"
+                        });
+                        jQuery("#EmpTable").jqGrid('navGrid', '#EmpPager', { del: false, add: false, edit: false }, {}, {}, {}, { multipleSearch: false });
+                    } else {
+                        $("#lblValResult").innerHTML = "No Data Found.";
+                        $('#EmpTable').jqGrid('GridUnload');
+                    }
+                }
+            });
+        }
+    });
+    function addLink(cellvalue, options, rowObject) {
+
+        var InstanceSubClassificationId = rowObject.InstanceSubClassificationId;
+
+        return "<a href='#' class='SearchJobRole' id='SearchJobRole" + options.rowId + "_" + InstanceSubClassificationId + " ' style='height:25px;width:120px;' type='button' title='Search JobRole Details' onclick=\"ViewJobRoleDetails(" + InstanceSubClassificationId + ")\" >" + rowObject.SubClassificationName + "</a>";
+    }
+    function ViewJobRoleDetails(InstanceSubClassificationId) {
+
+        window.open("/TraningLoc/UpdateJobRoleDetails?InstanceSubClassificationId=" + InstanceSubClassificationId, "_self");
+
+    }
+</script>
+<div class="col-lg-12">
+    @{
+        IEnumerable<SscDO> sscList = ViewData["SSCList"] as IEnumerable<SscDO>;
+
+    }
+    @using (Html.BeginForm("SearchJobRole", "TraningLoc", FormMethod.Post))
+    {
+        <div class="page-header filled full-block light" style="margin-top:10px;">
+            <div class="row">
+                <h2 style="text-align:center; color:#92298e ; font-family:Calibri; font-size:25px; font-weight:bold; text-transform:uppercase;">Search JobRole Details</h2>
+                <table width="60%" align="center">
+                    <tr>
+                        <td align="left">
+                            <div>
+                                <label style="font-weight:bold;color:red;font-size:11px;" id="lblValMessage"></label>
+                            </div>
+                        </td>
+                        <td align="right">
+                            <div>
+                                @Html.ActionLink("Create JobRole", "CreateJobRole", "TraningLoc")
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+                <table width="60%" align="center">
+                    <tr>
+                        <td class="pplBG">
+                            <span>&nbsp;Search JobRole</span>
+                        </td>
+                        <td align="right"></td>
+                    </tr>
+                </table><br />
+                <table width="60%" align="center" class="tablesideborders">
+                    <tr>
+                        <td width="12%" class="shaalatxtright" style="height:26px;"><font style="color:red;"></font> SSC: </td>
+                        <td width="22%">
+                            @Html.DropDownList("ddlSSCList", new SelectList(sscList, "InstanceClassificationId", "ClassificationName"), "-----Select-----", new { @class = "blueDropdown" })
+                        </td>
+                    </tr>
+                </table>
+                <br />
+                <table width="60%" align="center">
+
+                    <tr><td style="height:10px;"></td></tr>
+                    <tr>
+                        <td align="center">
+                            <input type="button" value="Clear" class="btn-report" id="btnClear" />&nbsp;&nbsp;&nbsp;
+                            <input type="button" value="Search" class="btn-report" id="btnSearch" />
+                        </td>
+                    </tr>
+                </table>
+                <br />
+                <table width="60%" align="center">
+                    <tr>
+                        <td width="100%">
+                            <div class='content' id="divForSchoolResult">
+                                <div style="padding-left:50px;">
+                                    <label style="font-weight:bold;color:red;font-size:11px;" id="lblValResult"></label>
+                                </div>
+                                <table id="EmpTable"></table>
+                                <div id="EmpPager">
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+                </table>
+            </div>
+        </div>
+    }
+</div>

@@ -1,0 +1,738 @@
+﻿@using NOSNewDO;
+@{
+    ViewBag.Title = "UpdateTrainingDetails";
+    Layout = "~/Views/Shared/_NosNewLayout.cshtml";
+}
+<link href="~/Content/styles-1.css" rel="stylesheet" media="all" />
+<link href="~/Content/Styles.css" rel="stylesheet" media="all" />
+
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+
+@*<script src="~/Scripts/jquery-1.9.0.min.js"></script>*@
+<script src="~/Scripts/jquery.jqGrid.js"></script>
+<script src="~/Scripts/grid.locale-en.js"></script>
+<link href="~/Content/JQGridReq/jquery-ui-1.9.2.custom.css" rel="stylesheet" type="text/css" />
+<link href="~/Content/JQGridReq/ui.jqgrid.css" rel="stylesheet" type="text/css" />"
+
+<style type="text/css">
+    .ui-jqgrid tr.jqgrow td {
+        word-wrap: break-word; /* IE 5.5+ and CSS3 */
+        white-space: pre-wrap; /* CSS3 */
+        white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+        white-space: -pre-wrap; /* Opera 4-6 */
+        white-space: -o-pre-wrap; /* Opera 7 */
+        overflow: hidden;
+        height: auto;
+        vertical-align: middle;
+        padding-top: 3px;
+        padding-bottom: 3px;
+    }
+</style>
+<script type="text/javascript">
+    function allow(e, str) {
+
+        var key;
+        var keychar;
+
+        if (window.event) {
+            key = window.event.keyCode;
+        }
+        else if (e) {
+            key = e.which;
+        }
+        else {
+            return true;
+        }
+        keychar = String.fromCharCode(key);
+        if ((key == null) || (key == 0) || (key == 8) || (key == 9) || (key == 13) || (key == 27)) {
+            return true;
+        }
+        else if (str == '') {
+            return true;
+        }
+        else if (((str).indexOf(keychar) > -1)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    $(document).ready(function () {
+
+        function getUrlVars() {
+            var vars = [], hash;
+            var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+            for (var i = 0; i < hashes.length; i++) {
+                hash = hashes[i].split('=');
+                vars.push(hash[0]);
+                vars[hash[0]] = hash[1];
+            }
+            return vars;
+        }
+        var LocationId = getUrlVars()["LocationId"];
+        document.getElementById("hdnLocationId").value = LocationId;
+
+        if (LocationId != 0) {
+            document.getElementById("btnSave").value = "Update";
+            document.getElementById("btnClear").setAttribute("style", "font-size:11px;font-weight:bold;display:none;");
+            document.getElementById("divTraningJobRole").setAttribute("style", "font-size:11px;font-weight:bold;display:block;");
+
+            BindJobRoleDetailsForTraningLoc();
+
+        }
+        else {
+            document.getElementById("btnSave").value = "Save";
+            document.getElementById("btnClear").setAttribute("style", "font-size:11px;font-weight:bold;display:block;");
+            document.getElementById("divTraningJobRole").setAttribute("style", "font-size:11px;font-weight:bold;display:block;");
+
+        }
+        var LocationName = "", TrainingLocCode = "", ClsRoomCapacity = "", NoOfRooms = "", Descriptions = "", StateId = "", City = "", Address = "", SSCId = "", JobRoleId = "", createdby = "", Createddate = "", Updatedby = "", Updatedate = "", TrainingLlocationsId = "", Descript = "", CreatedBy = "";
+
+        $("#ddlSSCList").on("change", function () {
+            if ($("#ddlSSCList option:selected").attr("value") == "" || $("#ddlSSCList option:selected").attr("value") == "0") {
+                $('#ddlJobRoleList').empty();
+            }
+            else {
+                $.ajax({
+                    url: '../TraningLoc/GetJobRoleBySSCId',
+                    type: 'post',
+                    data: {
+                        SSCId: $("#ddlSSCList option:selected").attr("value")
+                    },
+                    success: function (response) {
+
+                        var $select = $('#ddlJobRoleList');
+                        $select.empty();
+                        $('<option>', {
+                            value: 0
+                        }).html("------Select------").appendTo($select);
+                        $.each(response, function (i, jobrole) {
+                            $('<option>', {
+                                value: jobrole.InstanceSubClassificationId
+                            }).html(jobrole.SubClassificationName).appendTo($select);
+                        });
+
+                    }
+                });
+            }
+        });
+
+        $("#btnSave").on("click", function () {
+
+            debugger;
+            LocationId = document.getElementById("hdnLocationId").value;
+            var actionName = "";
+            if (LocationId == 0) {
+                actionName = "Save";
+            } else {
+                actionName = "Update";
+            }
+            LocationName = document.getElementById("txtLocationName").value;
+            TrainingLocCode = document.getElementById("txtTraningCode").value;
+            ClsRoomCapacity = document.getElementById("txtCapacity").value;
+            NoOfRooms = document.getElementById("txtRooms").value;
+            Descriptions = document.getElementById("txtDescription").value;
+            StateId = $("#ddlStateList").val();
+            City = document.getElementById("txtCity").value;
+            Address = document.getElementById("txtAddress").value;
+            //SSCId = $("#ddlSSCList").val();
+            //JobRoleId = $("#ddlJobRoleList").val();
+
+            var checkValidation = validateInputs();
+
+            if (checkValidation) {
+
+                document.getElementById("lblValMessage").innerHTML = "";
+                UpdateDetails = [];
+                UpdateDetails.push({
+                    "LocationId": LocationId,
+                    "LocationName": LocationName,
+                    "TrainingLocCode": TrainingLocCode,
+                    "ClsRoomCapacity": ClsRoomCapacity,
+                    "NoOfRooms": NoOfRooms,
+                    "Descriptions": Descriptions,
+                    "StateId": StateId,
+                    "City": City,
+                    "Address": Address,
+                    //"SSCId": SSCId,
+                    //"JobRoleId": JobRoleId,
+                    "createdby": createdby,
+                    "Createddate": Createddate,
+                    "Updatedby": Updatedby,
+                    "Updatedate": Updatedate
+                });
+                $.ajax({
+                    type: "POST",
+                    url: "../TraningLoc/UpdateTrainingDetail",
+                    data: JSON.stringify({ 'UpdateDetails': UpdateDetails }),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (d) {
+                        if (parseInt(d) > 0) {
+                            document.getElementById("lblValMessage").innerHTML = "Training Location Details Updated Successfully!.";
+                            if (actionName == "Save") {
+                                document.getElementById("hdnLocationId").value = parseInt(d);
+                                LocationId = parseInt(d);
+                            }
+                            document.getElementById("btnSave").setAttribute("disabled", "disabled");
+                            document.getElementById("btnClear").setAttribute("style", "font-size:11px;font-weight:bold;display:none;");
+                            document.getElementById("divTraningJobRole").setAttribute("style", "font-size:11px;font-weight:bold;display:block;");
+                            document.getElementById("lblJobRoleValResult").innerHTML = "";
+                        }
+                        else {
+                            document.getElementById("lblValMessage").innerHTML = "Training Location Name already exists.";
+                            document.getElementById("btnSave").removeAttribute("disabled");
+                            document.getElementById("divTraningJobRole").setAttribute("style", "font-size:11px;font-weight:bold;display:block;");
+                            document.getElementById("btnClear").setAttribute("style", "font-size:11px;font-weight:bold;display:block;");
+                            document.getElementById("lblJobRoleValResult").innerHTML = "";
+
+                        }
+                    }
+                });
+            }
+        });
+        function validateInputs() {
+            debugger;
+            var valMsg = "";
+            var newline = "\r\n";
+
+            if (LocationName == "" && TrainingLocCode == "" && StateId == "" && City == "" && JobRoleId == "") {
+                valMsg = "Please fill all mandatory fields.\n *LocationName\n *LocationCode\n *State\n *City\n *JobRole";
+                valMsg += newline;
+            }
+            else {
+                debugger;
+                if (LocationName == "") {
+                    if (valMsg == "") {
+                        valMsg = " Please enter LocationName";
+                    } else {
+                        valMsg = valMsg + ", LocationName";
+                    }
+                }
+
+                if (TrainingLocCode == "") {
+                    if (valMsg == "") {
+                        valMsg = "Please enetr LocationCode";
+                    } else {
+                        valMsg = valMsg + ", LocationCode";
+                    }
+                }
+
+                if (StateId == "") {
+                    if (valMsg == "") {
+                        valMsg = "Please select State";
+                    } else {
+                        valMsg = valMsg + ", State ";
+                    }
+                }
+
+                if (City == "") {
+                    if (valMsg == "") {
+                        valMsg = "Please enter City";
+                    } else {
+                        valMsg = valMsg + ",  City";
+                    }
+                }
+                if (JobRoleId == "") {
+                    if (valMsg == "") {
+                        valMsg = "Please select JobRole";
+                    } else {
+                        valMsg = valMsg + ",  JobRole";
+                    }
+                }
+            }
+            if (valMsg == "") {
+                if (valMsg == "") {
+
+                    return true;
+
+                } else {
+                    document.getElementById("lblValMessage").innerHTML = valMsg;
+                    return false;
+                }
+            }
+            else {
+                document.getElementById("lblValMessage").innerHTML = valMsg;
+                return false;
+            }
+        }
+        $("#btnClear").on("click", function () {
+            window.open("../TraningLoc/UpdateTrainingDetails", '_self', false);
+        });
+
+        function BindJobRoleDetailsForTraningLoc() {
+            debugger;
+            LocationId = document.getElementById("hdnLocationId").value;
+
+            $.ajax({
+                url: "../TraningLoc/GetJobRoleDetailsList",
+                type: 'post',
+                data: {
+                    LocationId: LocationId
+                },
+                success: function (d) {
+                    if (d.length != 0) {
+                        var result = JSON.stringify(d);
+                        if (result != null) {
+
+                            $("#lblJobValResult").innerHTML = "";
+                            document.getElementById("divForJobRoleDetails").setAttribute("style", "display:block;");
+                            $('#CriteriaTable').jqGrid('GridUnload');
+                            jQuery("#CriteriaTable").jqGrid({
+                                datatype: "local",
+                                colNames: ["LocationId", "SSC", "Job Role", "Delete"],
+                                colModel: [
+                                    { name: "LocationId", index: "LocationId", width: 20, hidden: true },
+                                        { name: "SSCId", index: "SSCId", width: 150 },
+                                        { name: "JobRole", index: "JobRole", width: 250 },
+                                        { name: "Delete", index: "Delete", width: 30, formatter: addImageForDelete }
+                                ],
+                                data: JSON.parse(result), //Load Data
+                                loadonce: true,
+                                rowList: [5, 10, 20],
+                                rowNum: 10, //Total records to display by default
+                                pager: '#CriteriaPager',
+                                viewrecords: true,
+                                sortorder: 'asc',
+                                gridview: true,
+                                sortname: 'Job Role',
+                                height: 'auto',
+                                altRows: true,
+                                hoverrows: true,
+                                caption: "Save/Update Job Role Details"
+                            });
+                            jQuery("#CriteriaTable").jqGrid('navGrid', '#CriteriaPager', { del: false, add: false, edit: false }, {}, {}, {}, { multipleSearch: false });
+
+                        }
+                    } else {
+
+                        // document.getElementById("lblValResult").innerHTML = "No Data Found.";
+                        $('#CriteriaTable').jqGrid('GridUnload');
+                        document.getElementById("divForJobRoleDetails").setAttribute("style", "display:none;");
+
+                    }
+                }
+            });
+        }
+        function addImageForDelete(cellvalue, options, rowObject) {
+            var TrainingPartnerId = rowObject.TrainingPartnerId;
+            return "<input type=\"image\" name=\"imgDelete\" id=\"imgDelete_" + TrainingPartnerId + "\" title=\"Click to delete this record\" src=\"../Content/MovetoBin.GIF\" onclick=\"return ConfirmDelete('JobRole');\" style='border-width:0px;'>";
+        }
+        $("#btnSaveJobRole").on("click", function () {
+            document.getElementById("lblValMessage").innerHTML = "";
+            document.getElementById("lblJobRoleValResult").innerHTML = "";
+            var SSCId = 0, JobRoleId = 0, TraningDetailsId;
+
+            SSCId = $("#ddlSSCList option:selected").attr("value");
+            JobRoleId = $("#ddlJobRoleList option:selected").attr("value");
+            LocationId = document.getElementById("hdnLocationId").value;
+            TraningDetailsId = document.getElementById("selectedTrainingId").value;
+
+
+            if (TraningDetailsId != 0) {
+
+                var criterisGridCount = jQuery("#CriteriaTable").jqGrid('getGridParam', 'records');
+                var data = {};
+                var grid = $('#CriteriaTable');
+                var rows = grid.jqGrid('getDataIDs');
+
+            }
+            else {
+
+            }
+
+            SaveJobRole();
+        });
+        function SaveJobRole() {
+            debugger;
+            var SSCId = 0, JobRoleId = 0, TraningDetailsId;
+
+            SSCId = $("#ddlSSCList option:selected").attr("value");
+            JobRoleId = $("#ddlJobRoleList option:selected").attr("value");
+            LocationId = document.getElementById("hdnLocationId").value;
+            TraningDetailsId = document.getElementById("selectedTrainingId").value;
+
+            jobRoleTrainingLocDetails = [];
+
+            jobRoleTrainingLocDetails.push({
+                "LocationId": LocationId,
+                "SSCId": SSCId,
+                "JobRole": JobRoleId
+            });
+            $.ajax({
+
+                type: "POST",
+                url: "../TraningLoc/SaveJobRoleDetailsForTraningLoc",
+                data: JSON.stringify({ 'jobRoleTrainingLocDetails': jobRoleTrainingLocDetails }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (d) {
+                    debugger;
+                    if (parseInt(d) > 0) {
+                        BindJobRoleDetailsForTraningLoc();
+                        document.getElementById("divToAddJobRole").setAttribute("style", "display:none;");
+                        document.getElementById("selectedTrainingId").value = "";
+                        //ClearCriteriaDetails();
+                        document.getElementById("lblJobRoleValResult").innerHTML = "JobRole Details saved Successfully.";
+                        alert("JobRole Saved Successfully");
+
+                    }
+                    else if (parseInt(d) == -2) {
+                        document.getElementById("lblJobRoleValResult").innerHTML = "Details already exists.";
+                        return false;
+                        alert("JobRole Saved Unsuccessfully");
+                    }
+                    else {
+                        document.getElementById("lblJobRoleValResult").innerHTML = "Some unexpected error has been occurred while saving criteria details.";
+                        return false;
+                    }
+                }
+            });
+        }
+        function ValidateJobRole() {
+            var msg = "";
+
+            if ($("#ddlSSCList option:selected").attr("value") == "" || $("#ddlSSCList option:selected").attr("value") == "0") {
+                if (msg == "") {
+                    msg = "SSC";
+                } else {
+                    msg = msg + "SSC";
+                }
+            }
+
+            if ($("#ddlJobRoleList option:selected").attr("value") == "" || $("#ddlJobRoleList option:selected").attr("value") == "0") {
+                if (msg == "") {
+                    msg = "Job Role";
+                } else {
+                    msg = msg + ", Job Role";
+                }
+            }
+
+
+            document.getElementById("lblJobRoleValResult").innerHTML = "";
+            if (msg != "") {
+                document.getElementById("lblJobRoleValResult").innerHTML = "Following fields have invalid data :<br>" + msg;
+                return false;
+            }
+            else {
+                document.getElementById("lblJobRoleValResult").innerHTML = "";
+                return true;
+            }
+        }
+        $("#btnClearJobRole").on("click", function () {
+            document.getElementById("lblValMessage").innerHTML = "";
+            ClearJobRoleDetails();
+
+        });
+
+        $("#btnCancelJobRole").on("click", function () {
+            document.getElementById("lblValMessage").innerHTML = "";
+            //ClearJobRoleDetails();
+            document.getElementById("divToAddJobRole").setAttribute("style", "display:none;");
+        });
+
+    });
+    function ConfirmDelete(msg) {
+        return confirm("Are you sure you want to delete " + msg);
+    }
+    function ClearJobRoleDetails() {
+        $('#ddlSSCList').emty();
+        $('#ddlJobRoleList').empty();
+        document.getElementById("lblJobRoleValResult").innerHTML = "";
+
+
+    }
+    function AddJobRole() {
+        document.getElementById("divToAddJobRole").setAttribute("style", "display:block;");
+
+    }
+</script>
+<div class="col-lg-12">
+    @{
+        IEnumerable<StateDO> stateList = ViewData["StateList"] as IEnumerable<StateDO>;
+        IEnumerable<SscDO> sscList = ViewData["SSCList"] as IEnumerable<SscDO>;
+
+        TraningLocDO objTrainingLocationDO = ViewData["TrainingDetails"] as TraningLocDO;
+        bool updateTaningLocDetails = false;
+        if (ViewData["UpdateTrainingLocation"] != null)
+        {
+            updateTaningLocDetails = (bool)ViewData["UpdateTrainingLocation"];
+        }
+
+    }
+    @using (Html.BeginForm("UpdateTrainingDetails", "TraningLoc", FormMethod.Post))
+    {
+        <div class="page-header filled full-block light" style="margin-top:10px;">
+            <div class="row">
+                <h2 style="text-align:center; color:#92298e ; font-family:Calibri; font-size:25px; font-weight:bold; text-transform:uppercase;">Update Training Location</h2>
+                <table width="60%" align="center">
+                    <tr>
+                        <td align="left">
+                            <div>
+                                <label style="font-weight:bold;color:red;font-size:11px;" id="lblValMessage"></label>
+                            </div>
+                        </td>
+                        <td align="right">
+                            <div>
+                                @Html.ActionLink("Back to Search", "SearchTrainingDetails", "TraningLoc", new { LocationId = 0 }, null)
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+                <table width="60%" align="center">
+                    <tr>
+                        <td class="pplBG">
+                            <span>&nbsp;Update Training Location</span>
+                        </td>
+                        <td align="right"></td>
+                    </tr>
+                </table><br />
+
+                <table width="60%" align="center" class="tablesideborders">
+                    <tr>
+                        <td width="12%" class="shaalatxtright" style="height:26px;">
+                            <font style="color:red;">*</font>Location Name
+                        </td>
+                        <td width="22%">
+                            @{
+                                if (objTrainingLocationDO != null)
+                                {
+                                    @Html.TextBox("txtLocationName", objTrainingLocationDO.LocationName, new { @class = "usertextbox", id = "txtLocationName", maxlength = "50", onkeypress = "return allow(event, ' ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ');" })
+                                }
+                                else
+                                {
+                                    @Html.TextBox("txtLocationName", null, new { @class = "usertextbox", id = "txtLocationName", maxlength = "50", onkeypress = "return allow(event, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ');" })
+                                }
+                            }
+                        </td>
+                        <td width="12%" class="shaalatxtright"><font style="color:red;">*</font>Location Code</td>
+                        <td width="22%">
+                            @{
+                                if (objTrainingLocationDO != null)
+                                {
+                                    @Html.TextBox("txtTraningCode", objTrainingLocationDO.TrainingLocCode, new { @class = "usertextbox", id = "txtTraningCode", maxlength = "50", onkeypress = "return allow(event, ' ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ');" })
+                                }
+                                else
+                                {
+                                    @Html.TextBox("txtTraningCode", null, new { @class = "usertextbox", id = "txtTraningCode", maxlength = "50", onkeypress = "return allow(event, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ');" })
+                                }
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="12%" class="shaalatxtright" style="height:26px;">
+                            Class Strength:
+                        </td>
+                        <td width="22%">
+                            @{
+                                if (objTrainingLocationDO != null)
+                                {
+                                    @Html.TextBox("txtCapacity", objTrainingLocationDO.ClsRoomCapacity, new { @class = "usertextbox", id = "txtCapacity", maxlength = "50", onkeypress = "return allow(event, ' 0123456789');" })
+                                }
+                                else
+                                {
+                                    @Html.TextBox("txtCapacity", null, new { @class = "usertextbox", id = "txtCapacity", maxlength = "50", onkeypress = "return allow(event, ' 0123456789');" })
+                                }
+                            }
+                        </td>
+                        <td width="12%" class="shaalatxtright" id="tdForIdentification">Room Nos:</td>
+                        <td width="22%" id="tdForIdentificationVal">
+                            @{
+                                if (objTrainingLocationDO != null)
+                                {
+                                    @Html.TextBox("txtRooms", objTrainingLocationDO.NoOfRooms, new { @class = "usertextbox", id = "txtRooms", maxlength = "50", onkeypress = "return allow(event, ' ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ');" })
+                                }
+                                else
+                                {
+                                    @Html.TextBox("txtRooms", null, new { @class = "usertextbox", id = "txtRooms", maxlength = "50", onkeypress = "return allow(event, ' ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ');" })
+                                }
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="12%" class="shaalatxtright" style="height:26px;">
+                            <font style="color:red;"></font>Description:
+                        </td>
+                        <td width="22%">
+                            @{
+                                if (objTrainingLocationDO != null)
+                                {
+                                    @Html.TextBox("txtDescription", objTrainingLocationDO.Descriptions, new { @class = "usertextbox", id = "txtDescription", maxlength = "50", onkeypress = "return allow(event, ' ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ');" })
+                                }
+                                else
+                                {
+                                    @Html.TextBox("txtDescription", null, new { @class = "usertextbox", id = "txtDescription", maxlength = "50", onkeypress = "return allow(event, ' ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ');" })
+                                }
+                            }
+                        </td>
+
+                        <td width="12%" class="shaalatxtright"><font style="color:red;">*</font>State </td>
+                        <td width="22%">
+                            @{
+                                if (objTrainingLocationDO != null)
+                                {
+                                    @*@Html.DropDownList("ddlStateList", new SelectList(stateList, "StateId", "StateName"), "-----Select-----", new { @class = "blueDropdown" })*@
+                                    @Html.DropDownList("ddlStateList", new SelectList(stateList, "StateId", "StateName", objTrainingLocationDO.StateId), "-----Select-----", new { @class = "blueDropdown" })
+                                }
+                                else
+                                {
+                                    @Html.DropDownList("ddlStateList", new SelectList(stateList, "StateId", "StateName"), "-----Select-----", new { @class = "blueDropdown" })
+                                }
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="12%" class="shaalatxtright" style="height:26px;">
+                            <font style="color:red;">*</font>  City
+                        </td>
+                        <td width="22%">
+                            @{
+                                if (objTrainingLocationDO != null)
+                                {
+                                    @Html.TextBox("txtCity", objTrainingLocationDO.City, new { @class = "usertextbox", id = "txtCity", maxlength = "50", onkeypress = "return allow(event, ' ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ');" })
+                                }
+                                else
+                                {
+                                    @Html.TextBox("txtCity", null, new { @class = "usertextbox", id = "txtCity", maxlength = "50", onkeypress = "return allow(event, ' ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ');" })
+                                }
+                            }
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td width="12%" class="shaalatxtright" style="height:26px;">
+                            Address:
+                        </td>
+                        <td width="22%">
+                            @{
+                                if (objTrainingLocationDO != null)
+                                {
+                                    @Html.TextBox("txtAddress", objTrainingLocationDO.Address, new { @class = "usertextbox", id = "txtAddress", maxlength = "50", onkeypress = "return allow(event, ' ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789/ @ - ,');" })
+                                }
+                                else
+                                {
+                                    @Html.TextBox("txtAddress", null, new { @class = "usertextbox", id = "txtAddress", maxlength = "50", onkeypress = "return allow(event, ' ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz 0123456789/ @ - ,');" })
+                                }
+                            }
+                        </td>
+
+                    </tr>
+
+                </table>
+                <br />
+                <table width="60%" align="center">
+
+                    <tr><td style="height:10px;"></td></tr>
+                    <tr>
+                        <td colspan="2">
+                            <input type="hidden" id="hdnLocationId" />
+
+                            @{
+                                if (objTrainingLocationDO != null)
+                                {
+                                    if (updateTaningLocDetails == true)
+                                    {
+                                        <input type="hidden" id="hdnupdateTraningLoc" value="1" />
+                                    }
+                                    else
+                                    {
+                                        <input type="hidden" id="hdnupdateTraningLoc" value="0" />
+                                    }
+
+                                }
+                                else
+                                {
+
+                                    <input type="hidden" id="hdnupdateTraningLoc" value="0" />
+
+
+                                }
+
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" colspan="2">
+
+                            <input type="button" value="Clear" style="font-size:11px;font-weight:bold;" id="btnClear" />&nbsp;
+                            <input type="button" value="Save" style="font-size:11px;font-weight:bold;" id="btnSave" />&nbsp;
+                        </td>
+                    </tr>
+                </table>
+                <div id="divForJobRoleDetails" style="display:none;">
+                    <br />
+                    <table width="60%" align="center">
+                        <tr>
+                            <td>
+                                <div>
+                                    <label style="font-weight:bold;color:red;font-size:11px;" id="lblJobRoleValResult"></label>
+                                </div>
+                            </td>
+                            <td align="right">
+                                <a href="#" id="lnkAddAddJobRole" style="font-underline:true;font-weight:bold;font-family:'Times New Roman', Times, serif" onclick="javascript: AddJobRole();">Add Job Role</a>
+                            </td>
+                        </tr>
+                    </table>
+                    <div id="divTraningJobRole" style="display:none;">
+                        <br />
+                        <table width="60%" align="center">
+                            <tr>
+                                <td width="100%">
+                                    <div class='content' id="divTraningJobRole">
+
+                                        <table id="CriteriaTable"></table>
+                                        <div id="CriteriaPager">
+                                        </div>
+                                    </div>
+                                    <input type="hidden" id="hdnTotalCriteria" value="0" />
+                                </td>
+                            </tr>
+
+                        </table>
+                    </div>
+                    <div id="divToAddJobRole" style="display:none;">
+                        <br />
+                        <table width="60%" align="center">
+                            <tr>
+                                <td class="pplBG">
+                                    <span>&nbsp;Save/Update Job Role</span>
+                                </td>
+                                <td align="right"></td>
+                            </tr>
+                        </table>
+                        <table width="60%" align="center" class="tablesideborders">
+                            <tr>
+                                <td width="40%" align="right" style="height:26px;"><font style="color:red;">*</font>SSC :&nbsp;&nbsp;&nbsp; </td>
+                                <td width="60%">
+                                    @Html.DropDownList("ddlSSCList", new SelectList(sscList, "InstanceClassificationId", "ClassificationName"), "-----Select-----", new { @class = "blueDropdown" })
+
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="40%" align="right" style="height:26px;"><font style="color:red;">*</font>Job Role :&nbsp;&nbsp;&nbsp; </td>
+                                <td width="60%">
+                                    @Html.DropDownList("ddlJobRoleList", new SelectList("", ""), new { @class = "blueDropdown" })
+
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td colspan="2" align="center">
+                                    <div id="divForComplexity"></div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" align="center">
+                                    <input type="button" value="Cancel" style="font-size:11px;font-weight:bold;" id="btnCancelJobRole" />&nbsp;&nbsp;&nbsp;
+                                    <input type="button" value="Clear" style="font-size:11px;font-weight:bold;" id="btnClearJobRole" />&nbsp;&nbsp;&nbsp;
+                                    <input type="button" value="Save" style="font-size:11px;font-weight:bold;" id="btnSaveJobRole" />&nbsp;&nbsp;&nbsp;
+                                    <input type="hidden" id="selectedTrainingId" />
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+                                }
+</div>

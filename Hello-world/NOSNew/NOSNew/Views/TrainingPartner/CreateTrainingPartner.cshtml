@@ -1,0 +1,360 @@
+﻿@using NOSNewDO
+@{
+    ViewBag.Title = "Create Training Partner";
+    //Layout = null;
+    Layout = "~/Views/Shared/_NosNewLayout.cshtml";
+}
+<link href="~/Content/styles-1.css" rel="stylesheet" media="all" />
+<link href="~/Content/Styles.css" rel="stylesheet" media="all" />
+
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+
+@*<script src="~/Scripts/jquery-1.9.0.min.js"></script>*@
+<script src="~/Scripts/jquery.jqGrid.js"></script>
+<script src="~/Scripts/grid.locale-en.js"></script>
+<link href="~/Content/JQGridReq/jquery-ui-1.9.2.custom.css" rel="stylesheet" type="text/css" />
+<link href="~/Content/JQGridReq/ui.jqgrid.css" rel="stylesheet" type="text/css" />
+
+<style type="text/css">
+    .ui-jqgrid tr.jqgrow td {
+        word-wrap: break-word; /* IE 5.5+ and CSS3 */
+        white-space: pre-wrap; /* CSS3 */
+        white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+        white-space: -pre-wrap; /* Opera 4-6 */
+        white-space: -o-pre-wrap; /* Opera 7 */
+        overflow: hidden;
+        height: auto;
+        vertical-align: middle;
+        padding-top: 3px;
+        padding-bottom: 3px;
+    }
+</style>
+
+<script type="text/javascript">
+    function allow(e, str) {
+
+        var key;
+        var keychar;
+
+        if (window.event) {
+            key = window.event.keyCode;
+        }
+        else if (e) {
+            key = e.which;
+        }
+        else {
+            return true;
+        }
+        keychar = String.fromCharCode(key);
+        if ((key == null) || (key == 0) || (key == 8) || (key == 9) || (key == 13) || (key == 27)) {
+            return true;
+        }
+        else if (str == '') {
+            return true;
+        }
+        else if (((str).indexOf(keychar) > -1)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    $(document).ready(function () {
+        var tpName = "", tpCode = "", pocName = "", tpAddress = "", tpDescription = "", noOfCenters = "", pocMobile = "",
+            stateList = "", cityList = "", SSC=0;
+
+        $("#btnSubmit").on("click", function () {
+
+            debugger;
+            //if ($("#ddlSSCList option:selected").attr("value") != "") {
+            //    SSC = $("#ddlSSCList option:selected").attr("value");
+            //}
+                                           
+            tpName = document.getElementById("txtTPName").value;
+            tpCode = document.getElementById("txtTPCode").value;
+            pocName = document.getElementById("txtPOCName").value;
+            tpAddress = document.getElementById("txtTPAddress").value;
+            tpDescription = document.getElementById("txtTPDescription").value;
+            noOfCenters = document.getElementById("txtNoOfCenters").value;
+            pocMobile = document.getElementById("txtPOCMobile").value;
+            stateList = document.getElementById("ddlStateList").value;
+            cityList = document.getElementById("txtCityList").value;
+            
+            var checkValidation = validateInputs();
+
+            if (checkValidation) {
+
+                document.getElementById("lblValMessage").innerHTML = "";
+                
+
+                var methodURL = "../TrainingPartner/SaveTrainingPartner";
+
+                $.ajax({
+                    type: "POST",
+                    url: methodURL,
+                    dataType: "text",
+                    data: {
+                        TrainingPartnerName: tpName, TrainingPartnerCode: tpCode, POCName: pocName, TPAddress: tpAddress, TPDescription: tpDescription, NoOfCenters: noOfCenters, POCMobileNo: pocMobile,
+                        StateId: stateList, City: cityList
+                    },
+                    success: function (g) {
+                        debugger;
+
+                        if (g == 1) {
+                            document.getElementById("btnSubmit").disabled = true;
+                            document.getElementById("lblValMessage").innerHTML = "Success! Training Partner Created Successfully!";
+                        }
+
+                        else {
+                            document.getElementById("btnSubmit").disabled = false;
+                            document.getElementById("lblValMessage").innerHTML = "Unable to Create Training Partner";
+                        }
+
+                        //alert("Success! Assessment asigned successfully!");
+                    },
+                    error: function (requestObject, error, errorThrown) {
+                        debugger;
+                        document.getElementById("lblValMessage").innerHTML = "Invalid";
+                        ("Error");
+                    }
+
+                });
+
+            }
+
+        });
+
+        function validateInputs() {
+            debugger;
+            var valMsg = "";
+            var newline = "\r\n";
+
+            if (tpName == "" && tpCode == "" && pocName == "" && pocMobile == "" && stateList == "") {
+                alert("Please fill all mandatory fields.\n *TP Name\n *TP Code\n *POC Name\n *POC Mobile\n *State");
+                valMsg += newline;
+            }
+            else {
+                if (tpName == "") {
+                    if (valMsg == "") {
+                        valMsg = "Please enter TP Name";
+                    } else {
+                        valMsg = valMsg + ", TP Name";
+                    }
+                }
+
+                if (tpCode == "") {
+                    if (valMsg == "") {
+                        valMsg = "Please enter TP Code";
+                    } else {
+                        valMsg = valMsg + ", TP Code";
+                    }
+                }
+
+                if (pocName == "") {
+                    if (valMsg == "") {
+                        valMsg = "Please enter POC Name";
+                    } else {
+                        valMsg = valMsg + ", POC Name ";
+                    }
+                }
+
+                if (pocMobile == "") {
+                    if (valMsg == "") {
+                        valMsg = "Please enter POC Mobile";
+                    } else {
+                        valMsg = valMsg + ",  POC Mobile";
+                    }
+                }
+
+                if (stateList == 0) {
+                    if (valMsg == "") {
+                        valMsg = "Please select State.";
+                    } else {
+                        valMsg = valMsg + ", State.";
+                    }
+                }
+            }
+           
+            if (valMsg == "") {
+                if (valMsg == "") {
+
+                    return true;
+
+                } else {
+                    document.getElementById("lblValMessage").innerHTML = valMsg;
+                    return false;
+                }
+            }
+            else {
+                document.getElementById("lblValMessage").innerHTML = valMsg;
+                return false;
+            }
+
+        }
+        $("#btnClear").on("click", function () {
+            window.open("../TrainingPartner/CreateTrainingPartner", '_self', false);
+        });
+        
+    });
+    function AddJobRole() {
+        document.getElementById("divToAddJobRole").setAttribute("style", "display:block;");
+        ClearCriteriaDetails();
+        CriteriaQBDropdown();
+    }
+</script>
+
+<div class="col-lg-12">
+    @{
+        IEnumerable<StateListDO> stateList = ViewData["StateList"] as IEnumerable<StateListDO>;
+        // IEnumerable<SSCDO> sscList = ViewData["SSCList"] as IEnumerable<SSCDO>;
+
+
+
+    }
+    @using (Html.BeginForm("CreateTrainingPartner", "TrainingPartner", FormMethod.Post))
+    {
+
+        <div class="page-header filled full-block light" style="margin-top:10px;">
+            <div class="row">
+                <h2 style="text-align:center; color:#92298e ; font-family:Calibri; font-size:25px; font-weight:bold; text-transform: uppercase;">Manage Training Partner</h2>
+
+                <table width="60%" align="center">
+                    <tr>
+                        <td align="left">
+                            <div>
+                                <label style="font-weight:bold;color:red;font-size:11px;" id="lblValMessage"></label>
+                            </div>
+                        </td>
+                        <td align="right">
+                            <div>
+                                @Html.ActionLink("Back to Search", "ManageTrainingPartner", "TrainingPartner")
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+                <table width="60%" align="center">
+                    <tr>
+                        <td class="pplBG">
+                            <span>&nbsp;Create New Training Partner</span>
+                        </td>
+                        <td align="right"></td>
+                    </tr>
+                </table><br />
+                <table width="60%" align="center" class="tablesideborders">
+                    <tr>
+                        <td width="12%" class="shaalatxtright" style="height:26px;">
+                            <font style="color:red;">*</font>TP Name
+                        </td>
+                        <td width="22%">
+                            @Html.TextBox("txtTPName", null, new { @class = "usertextbox", id = "txtTPName", maxlength = "50", onkeypress = "return allow(event, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ');" })
+                        </td>
+                        <td width="12%" class="shaalatxtright"><font style="color:red;">*</font>TP Code</td>
+                        <td width="22%">
+                            @Html.TextBox("txtTPCode", null, new { @class = "usertextbox", id = "txtTPCode", maxlength = "50", onkeypress = "return allow(event, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789');" })
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="12%" class="shaalatxtright" style="height:26px;"><font style="color:red;">*</font>
+                            POC Name
+                        </td>
+                        <td width="22%">
+                            @Html.TextBox("txtPOCName", null, new { @class = "usertextbox", id = "txtPOCName", maxlength = "50", onkeypress = "return allow(event, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ');" })
+                        </td>
+                        <td width="12%" class="shaalatxtright" id="tdForIdentification">TP Address</td>
+                        <td width="22%" id="tdForIdentificationVal">
+                            @Html.TextBox("txtTPAddress", null, new { @class = "usertextbox", id = "txtTPAddress", maxlength = "12", onkeypress = "return allow(event, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz 0123456789');" })
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="12%" class="shaalatxtright" style="height:26px;">
+                            <font style="color:red;"></font>TP Description
+                        </td>
+                        <td width="22%">
+                            @Html.TextArea("txtTPDescription", null, new { @class = "usertextbox", id = "txtTPDescription", maxlength = "200", onkeypress = "return allow(event, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz 0123456789');" })
+                        </td>
+                        <td width="12%" class="shaalatxtright"><font style="color:red;"></font>No of Centers</td>
+                        <td width="22%">
+                            @Html.TextBox("txtNoOfCenters", null, new { @class = "usertextbox", id = "txtNoOfCenters", maxlength = "50", onkeypress = "return allow(event, '0123456789');" })
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="12%" class="shaalatxtright" style="height:26px;"><font style="color:red;">*</font> POC Mobile</td>
+                        <td width="22%">
+                            @Html.TextBox("txtPOCMobile", null, new { @class = "usertextbox", id = "txtPOCMobile", maxlength = "10", onkeypress = "return allow(event, '0123456789');" })
+                        </td>
+                        <td width="12%" class="shaalatxtright"><font style="color:red;">*</font>State </td>
+                        <td width="22%">
+                            @Html.DropDownList("ddlStateList", new SelectList(stateList, "StateId", "StateName"), "-----Select-----", new { @class = "blueDropdown" })
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="12%" class="shaalatxtright" style="height:26px;">
+                            City
+                        </td>
+                        <td width="22%">
+                            @Html.TextBox("txtCityList", null, new { @class = "usertextbox", id = "txtCityList", maxlength = "50", onkeypress = "return allow(event, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ');" })
+                        </td>
+                        @*<td width="12%" class="shaalatxtright" style="height:26px;"><font color="#ff2200"></font> SSC</td>
+                        <td width="22%">
+                            @Html.DropDownList("ddlSSCList", new SelectList(sscList, "GlobalLogisticsId", "LogisticsName"), "-----Select-----", new { @class = "blueDropdown" })
+                        </td>*@
+
+                    </tr>
+                   
+                </table>
+                <br />
+                <table width="60%" align="center">
+
+                    <tr><td style="height:10px;"></td></tr>
+                    <tr>
+                        <td align="center">
+                            <input type="button" value="Clear" class="btn-report" id="btnClear" />&nbsp;&nbsp;&nbsp;
+                            <input type="button" value="Submit" class="btn-report" id="btnSubmit" />
+                        </td>
+                    </tr>
+                </table>
+                <div id="divToAddJobRole" style="display:none;">
+                    <br />
+                    <table width="60%" align="center">
+                        <tr>
+                            <td class="pplBG">
+                                <span>&nbsp;Save/Update Job Role</span>
+                            </td>
+                            <td align="right"></td>
+                        </tr>
+                    </table>
+                    <table width="60%" align="center" class="tablesideborders">
+                        <tr>
+                            <td width="40%" align="right" style="height:26px;"><font style="color:red;">*</font>SSC</td>
+                            <td width="60%">
+                                @Html.DropDownList("ddlQBList", new SelectList("", ""), new { @class = "blueDropdown" })
+                                <intput type="hidden" id="selectedQBId"></intput>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="40%" align="right" style="height:26px;"><font style="color:red;">*</font>Job Role</td>
+                            <td width="60%">
+                                @Html.DropDownList("ddlNOSList", new SelectList("", ""), new { @class = "blueDropdown" })
+                                <intput type="hidden" id="selectedTopicId"></intput>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" align="center">
+                                <div id="divForComplexity"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" align="center">
+
+                                <input type="button" value="Cancel" style="font-size:11px;font-weight:bold;" id="btnCancelJobRole" />&nbsp;&nbsp;&nbsp;
+                                <input type="button" value="Clear" style="font-size:11px;font-weight:bold;" id="btnClearJobRole" />&nbsp;&nbsp;&nbsp;
+                                <input type="button" value="Save" style="font-size:11px;font-weight:bold;" id="btnSaveJobRole" />&nbsp;&nbsp;&nbsp;
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>
